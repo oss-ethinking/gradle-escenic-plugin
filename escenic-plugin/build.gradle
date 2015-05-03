@@ -1,0 +1,9 @@
+apply plugin: 'groovy'
+apply plugin: 'eclipse'
+
+
+dependencies {
+	testCompile 'junit:junit:4.+'
+}
+
+

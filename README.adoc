@@ -27,13 +27,13 @@ The  Gradle Escenic plugins provides a complete tooling set for a smart and agil
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.7.0"
+  id "de.ethinking.escenic" version "0.7.1"
   // or
-  id "de.ethinking.escenic.engine" version "0.7.0"
+  id "de.ethinking.escenic.engine" version "0.7.1"
   // or
-  id "de.ethinking.escenic.presentation" version "0.7.0"
+  id "de.ethinking.escenic.presentation" version "0.7.1"
   // or
-  id "de.ethinking.escenic.studio" version "0.7.0"
+  id "de.ethinking.escenic.studio" version "0.7.1"
 }
 ----
 
@@ -45,7 +45,7 @@ plugins {
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.7.0"  //<1>
+  id "de.ethinking.escenic" version "0.7.1"  //<1>
 }
 
 repositories{

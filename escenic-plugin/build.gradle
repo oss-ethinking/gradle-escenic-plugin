@@ -7,3 +7,30 @@ dependencies {
 }
 
 
+pluginBundle {
+    website = 'https://github.com/oss-ethinking/gradle-escenic-plugin'
+    vcsUrl = 'https://github.com/oss-ethinking/gradle-escenic-plugin'
+    description = 'The Gradle escenic plugin provides dependency managment for the escenic CMS distribution.'
+    tags = ['escenic','cms']
+   
+    plugins {
+      escenicPlugin {
+        id = 'de.ethinking.escenic'
+        displayName = 'Gradle escenic plugin'
+      }
+   
+      escenicEnginePlugin {
+          id = 'de.ethinking.escenic.engine'
+          displayName = 'Gradle escenic engine plugin'
+      }
+      
+      escenicPresentationPlugin {
+          id = 'de.ethinking.escenic.presentation'
+          displayName = 'Gradle escenic presentation plugin'
+      }
+      escenicStudioPlugin {
+          id = 'de.ethinking.escenic.studio'
+          displayName = 'Gradle escenic studio plugin'
+      }
+    }
+}

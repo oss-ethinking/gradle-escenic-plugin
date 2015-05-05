@@ -1,0 +1,216 @@
+= Gradle Escenic Plugins
+Simon Mieth <sm@ethinking.de>
+v1.0, 2014-09-21 eThinking Escenic Gradle Plugin
+:toc: left
+:toclevels: 4
+:source-highlighter: coderay
+:icons: font
+
+== Overview
+The  Gradle Escenic plugins provides a complete tooling set for a smart and agile development process with the  http://www.escenic.com[Escenic Content Engine]. 
+
+
+
+.Table of provided plugins 
+[options="header"]
+|=======================
+|plugin Id                              |Description                                                    |DependsOn
+|de.ethinking.escenic                |Manage dependencies to escenic engine and plugin repositories  |        
+|de.ethinking.escenic.engine         |Provides access to engine dependencies                         |escenic 
+|de.ethinking.escenic.presentation   |Provides access to presentation dependencies                   |escenic
+|de.ethinking.escenic.studio         |Provides access to content studio dependencies                 |escenic
+|=======================
+
+== Usage
+
+
+[source, groovy]
+----
+plugins {
+  id "de.ethinking.escenic" version "0.7.0"
+  // or
+  id "de.ethinking.escenic.engine" version "0.7.0"
+  // or
+  id "de.ethinking.escenic.presentation" version "0.7.0"
+  // or
+  id "de.ethinking.escenic.studio" version "0.7.0"
+}
+----
+
+
+
+== Core Plugin de.ethinking.escenic 
+
+.Apply plugin
+[source, groovy]
+----
+plugins {
+  id "de.ethinking.escenic" version "0.7.0"  //<1>
+}
+
+repositories{
+    escenicLocal('my/local/repository')   //<2>
+    escenicRepository('http://remote-escenic-repository>/escenic/57/','UserName','Password')   //<3>
+}
+
+dependencies{
+      engine 'com.escenic:engine:5.7....'   //<4>  
+            
+      plugin 'com.escenic:<plugin>:..'
+      plugin 'com.escenic:<another plugin>:...'
+      
+      assembly 'com.escenic:assemblytool:...'           //<5>
+}
+
+----
+<1> Apply the core plugin
+<2> Setup a local filesystem based repository
+<3> Setup a simple layout repository
+<4> Add all your dependecies here like engine version and plugins
+<5> You also need the escenic assembly tool as dependency 
+
+
+The escenic plugin manage the complete dependencies of the escenic CMS distribution and their plugins.
+
+=== Task init-feature 
+
+The task *init-feature* will create a feature subproject by creating all needed folders and Gradle buildfiles. 
+The subproject itself will be added to settings.gradle of the current project. 
+
+.Table Parameters for task *init-feature*
+[options="header"]
+|=======================
+|Parameter      |Description                            | Optional
+|feature        |The name of the feature                | no     
+|engine         |Adds escenic engine flavor             | yes    
+|presentation   |Adds escenic presentation flavor       | yes
+|studio         |Adds escenic studio flavor             | yes
+|subproject     | Unkown subprojects without any escenic flavor | yes
+|=======================
+
+.Example for a *soccer* feature 
+[source,sh]
+----
+ ./gradlew  init-feature -Dfeature=soccer -Dengine=soccer-engine -Dpresentation=soccer-widgets
+----
+
+
+== Plugin de.ethinking.escenic.engine
+
+The de.ethinking.escenic.engine plugin provides access to all libraries from the escenic distribution and all used plugins of your installation. 
+
+
+.Apply plugin
+[source, groovy]
+----
+plugins {
+  id "de.ethinking.escenic.escenic" version "0.x.x"  //<1>
+}
+
+dependencies{
+    compile engineAPI() //<1>
+    compile engineCore()   //<2>
+    compile enginePlugin('any-plugin')   //<3>
+}
+
+----
+<1> Adds only the minimal need libraries of the API escenic engine layer
+<2> Adds all dependencies of the API escenic engine layer
+<3> Adds all dependencies of the API layer from the given plugin   
+
+
+=== Configuration for deploy Plugin
+
+If you want to use the deploy Plugin then you have to configure which dependencies do you want to assembled into the escenic engine. 
+
+
+
+== Plugin de.ethinking.escenic.presentation
+
+.Apply plugin
+[source, groovy]
+----
+plugins {
+  id "de.ethinking.escenic.presentation" version "0.x.x"  //<1>
+}
+
+dependencies{
+       compile  presentationCore()                 //<2>
+       compile  presentationPlugin('menu')         //<3>
+}
+
+----
+<1> apply the plugin for escenic presentation support
+<2> add presentation core compile dependencies
+<3> add the presentation libraries of an plugin as compile dependencies
+
+
+== Plugin de.ethinking.escenic.studio
+
+.Apply plugin
+[source, groovy]
+----
+plugins {
+  id "de.ethinking.escenic.studio" version "0.x.x"  //<1>
+}
+dependencies{
+    compile  studioCore()                     //<2>
+    compile  studioPlugin('analytics')        //<3>
+}
+----
+<1> apply the studio plugin
+<2> add content studio libs as compile dependency
+<3> add content studio libs of an plugin as compile dependency
+
+
+== Example project 
+
+=== Setup the parent project 
+
+.The parent build.gradle file
+[source, groovy]
+----
+
+plugins {
+  id "de.ethinking.escenic" version "0.x.y"  //<1>
+}
+
+repositories{
+    escenicRepository('http://<Escenic distribution repository>/escenic/57/','***','***')
+}
+
+subprojects {        //<1>
+
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+
+
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+    repositories {
+        mavenCentral()
+    }
+
+}
+
+dependencies{
+      engine 'com.escenic:engine:5.7.20.157888'
+      plugin 'com.escenic:widget-framework-core:3.2.0.157669'
+      plugin 'com.escenic:analysis-engine:2.7.0.148640'
+      plugin 'com.escenic:xml-editor:2.5.0.149301'
+      plugin 'com.escenic:menu-editor:2.3.0.149305'
+      assembly 'com.escenic:assemblytool:2.0.6'
+}
+
+task wrapper(type: Wrapper) {       //<2>
+    gradleVersion = '2.3'
+}
+
+----
+<1> Configure all subproject as java projects and add support for eclipse
+<2> Use the gradle wrapper to simplify gradle installation
+
+=== Create an engine subproject
+
+
+=== Create an feature project with presentation layer and content studio plugin

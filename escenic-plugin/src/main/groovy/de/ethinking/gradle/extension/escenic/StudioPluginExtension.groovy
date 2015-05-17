@@ -26,6 +26,8 @@ class StudioPluginExtension {
 		this.project=project
 	}
 	
-	
+	def includePlugin(boolean b){
+        includePlugin = b
+    }
 
 }

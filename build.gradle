@@ -12,7 +12,7 @@ apply plugin: 'com.github.jruby-gradle.base'
 apply plugin: 'eclipse'
 
 
-version='0.7.1'
+version='0.7.2'
 
 
 
@@ -66,6 +66,6 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.3'
+	gradleVersion = '2.4'
 }
 

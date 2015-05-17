@@ -31,6 +31,7 @@ class EscenicEnginePlugin implements Plugin<Project> {
 				runtimeEngine
 				pluginEngine
 			}
+            
 			DependencyClosures.addEngineCoreDependencyClosure(project)
 			DependencyClosures.addEnginePluginDependencyClosure(project)
 		}

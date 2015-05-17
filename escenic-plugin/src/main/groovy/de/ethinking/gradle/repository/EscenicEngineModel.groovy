@@ -112,6 +112,7 @@ class EscenicEngineModel{
 	}
 
 	public void initialize(Project project){
+        
 		//create a completely clean repository directory
 		File repoLocation = createCleanRepositoryLocation()
 		new File(repoLocation,engineSourcePath+pluginStorePath).mkdirs()
@@ -139,14 +140,23 @@ class EscenicEngineModel{
 	}
 
 	public String createCacheKey(Project project){
-		String cacheKey = ''
+		
+        def dependencyList = []
+        
+        String cacheKey = ''
+        
 		for(Dependency dependency:project.configurations.engine.dependencies){
-			cacheKey <<= (dependency.getGroup()+":"+dependency.getName()+":"+dependency.getVersion()+",")
+			dependencyList.add(dependency.getGroup()+":"+dependency.getName()+":"+dependency.getVersion())
 		}
 		for(Dependency dependency:project.configurations.plugin.dependencies){
-			cacheKey <<= (dependency.getGroup()+":"+dependency.getName()+":"+dependency.getVersion()+",")
+			dependencyList.add(dependency.getGroup()+":"+dependency.getName()+":"+dependency.getVersion())
 		}
-		return cacheKey
+        
+        dependencyList = dependencyList.sort()
+
+        cacheKey = dependencyList.iterator().join(',')
+        
+        return cacheKey
 	}
 
 

@@ -12,12 +12,20 @@ buildscript {
 apply plugin: "com.gradle.plugin-publish"
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
-
+apply plugin: 'maven'
 
 dependencies {
 	testCompile 'junit:junit:4.+'
 }
 
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri(System.properties['user.home']+'/.localmavenrepo/'))
+        }
+    }
+}
 
 pluginBundle {
     website = 'https://github.com/oss-ethinking/gradle-escenic-plugin'

@@ -1,0 +1,22 @@
+= Release Notes
+Simon Mieth <sm@ethinking.de>
+v1.1, 2014-05-17  Changes
+:toc: left
+:toclevels: 4
+:source-highlighter: coderay
+:icons: font
+
+
+
+
+
+== 0.7.2
+
+ * added new dependency shortcut *escenicDistributionWarContent*
+ * defined assembly task inputs/outputs 
+ * automatic assembly task dependency setup when using de.ethinking.gaffer plugin and dependency shortcuts
+
+
+== 0.7.1 
+
+Initial GitHub import

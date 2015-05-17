@@ -1,24 +1,25 @@
 /*
-*  Copyright 2015 eThinking GmbH
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*   http://www.apache.org/licenses/LICENSE-2.0
-
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-*/
+ *  Copyright 2015 eThinking GmbH
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package de.ethinking.gradle.plugin.escenic
 
 
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.DependencySet
 import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.file.FileTree
 import org.gradle.api.logging.Logger
@@ -26,10 +27,12 @@ import org.gradle.api.tasks.Delete
 
 
 
+
 import de.ethinking.gradle.extension.escenic.EscenicExtension
 import de.ethinking.gradle.repository.DependencyResolver
 import de.ethinking.gradle.repository.EscenicEngineModel
 import de.ethinking.gradle.task.escenic.StudioPluginAccessTask
+
 import org.gradle.api.logging.Logging
 
 import de.ethinking.gradle.task.escenic.CreateFeatureArtifactTask
@@ -37,230 +40,317 @@ import de.ethinking.gradle.task.escenic.CreateFeatureArtifactTask
 
 class EscenicPlugin implements Plugin<Project> {
 
-	static Logger LOG = Logging.getLogger(EscenicPlugin.class)
+    static Logger LOG = Logging.getLogger(EscenicPlugin.class)
 
 
 
-	void apply(Project project) {
+    void apply(Project project) {
 
-		project.configure(project) {
-			project.extensions.create("escenic",EscenicExtension,project)
-		}
+        project.configure(project) {
+            project.extensions.create("escenic",EscenicExtension,project)
+        }
 
-		project.configurations{
-			engine
-			plugin
-			assembly
-		}
+        project.configurations{
+            engine
+            plugin
+            assembly
+        }
 
-		addPublicEngineAssemblyTasks(project)
-		injectRepositoryClosures(project)
-
-		//helper tasks
-		project.task('init-feature', type: CreateFeatureArtifactTask)
-
-		project.afterEvaluate {
-
-			EscenicEngineModel escenicEngineModel = new EscenicEngineModel(project.escenic)
-			if(!escenicEngineModel.isInitialized(project)){
-				escenicEngineModel.initialize(project)
-			}
-
-			evaluateDependencies(escenicEngineModel,project.escenic)
-			File webappsRepository = escenicEngineModel.getWebappRepositoryLocation()
-
-			if(LOG.isInfoEnabled()){
-				LOG.info("Assembly war file repository:"+webappsRepository.getAbsoluteFile())
-			}
-
-			//adding webapps location  as
-			for(Project subproject:project.allprojects){
-
-				DependencyClosures.addEscenicDistributionClosure(subproject)
-				subproject.repositories{
-					flatDir	{ dirs webappsRepository.getAbsolutePath() }
-				}
-			}
-			addEngineAssemblyTasks(project)
-		}
-
-	}
-
-	private injectRepositoryClosures(Project project) {
         
-		project.repositories.metaClass.escenicRepository = {String repoURL,String user,String passwd  ->
+        addPublicEngineAssemblyTasks(project)
+        injectRepositoryClosures(project)
 
-			if(LOG.isInfoEnabled()){
-				LOG.info("Setup Ivy-Repo from:"+repoURL)
-				if(user&&passwd){
-					LOG.info("Using credentials user:"+user+" and password:"+passwd)
-				}
-			}
+        //helper tasks
+        project.task('init-feature', type: CreateFeatureArtifactTask)
 
-			project.repositories.add(project.repositories.ivy{
-				url repoURL
-				layout "pattern", {artifact "[artifact]-[revision].zip"}
-				if(user && passwd){
-					credentials {
-						username user
-						password passwd
-					}
-				}
-			}
-			)
-		}
+        
 
+        
+        project.afterEvaluate {
 
-		project.repositories.metaClass.escenicLocal = {String repoLocation  ->
+            EscenicEngineModel escenicEngineModel = new EscenicEngineModel(project.escenic)
+            if(!escenicEngineModel.isInitialized(project)){
+                println "Create local escenic repository"
+                escenicEngineModel.initialize(project)
+            }
 
-			String repoURL =  project.file(repoLocation).toURI().toURL().toExternalForm()
-			if(LOG.isInfoEnabled()){
-				LOG.info("Setup Ivy-Repo with url:"+repoURL)
-			}
+            evaluateDependencies(escenicEngineModel,project.escenic)
+            File webappsRepository = escenicEngineModel.getWebappRepositoryLocation()
 
-			project.repositories.add(project.repositories.ivy{
-				url repoURL
-				layout "pattern", {artifact "[artifact]-[revision].zip"}
-			}
-			)
-		}
-	}
+            if(LOG.isInfoEnabled()){
+                LOG.info("Assembly war file repository:"+webappsRepository.getAbsoluteFile())
+            }
 
+            //adding webapps location  as
+            for(Project subproject:project.allprojects){
 
-	protected void evaluateDependencies(EscenicEngineModel escenicRepository,EscenicExtension escenicExtension){
-		escenicRepository.setupDependencies(escenicExtension)
-	}
+                DependencyClosures.addEscenicDistributionClosure(subproject)
+                subproject.repositories{
+                    flatDir	{ dirs webappsRepository.getAbsolutePath() }
+                }
+            }
 
+            addEngineAssemblyTasks(project)
+        }
 
-	def addEngineAssemblyTasks(Project project){
-		if(project.configurations.assembly){
+    }
 
-			File assemblyDirectory = new File(project.escenic.getLocalRepositoryLocation(),"assembly/")
-			File engineSourceDirectory =  new File(project.escenic.getLocalRepositoryLocation(),"engine-source/")
-			//File initialAssemblyFile = new File(assemblyDirectory,"assemble.properties")
+    private injectRepositoryClosures(Project project) {
 
-			//if(initialAssemblyFile.exists()){
-			project.task("installAssembly",type:Delete)<<{
-				delete assemblyDirectory
-				assemblyDirectory.mkdirs()
-				DependencyResolver resolver = new DependencyResolver()
-				resolver.storeZipDistribution(project,project.configurations.assembly, assemblyDirectory)
-			}
+        project.repositories.metaClass.escenicRepository = {String repoURL,String user,String passwd  ->
 
-			project.task("prepareAssembly",dependsOn:'installAssembly')<<{
-				File layerConfigDirectory = new File(assemblyDirectory,"conf")
-				//copy layer from escenic distribution
+            if(LOG.isInfoEnabled()){
+                LOG.info("Setup Ivy-Repo from:"+repoURL)
+                if(user&&passwd){
+                    LOG.info("Using credentials user:"+user+" and password:"+passwd)
+                }
+            }
 
-				project.copy{
-					from new File(engineSourceDirectory,"siteconfig/bootstrap-skeleton")
-					into layerConfigDirectory
-				}
-				//copy layer from project
-				project.copy{
-					from project.file(project.escenic.layerConf)
-					into layerConfigDirectory
-				}
-			}
-
-			project.task("initializeAssembly",dependsOn:'prepareAssembly')<<{
-				project.ant{
-					ant(dir: assemblyDirectory.getAbsolutePath(), antfile:"build.xml", inheritall:"false" ){
-						property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
-						target(name:"initialize")
-					}
-				}
-			}
-			project.tasks.findByName("collectStudioPlugins").dependsOn "initializeAssembly"
-			//}
+            project.repositories.add(project.repositories.ivy{
+                url repoURL
+                layout "pattern", {artifact "[artifact]-[revision].zip"}
+                if(user && passwd){
+                    credentials {
+                        username user
+                        password passwd
+                    }
+                }
+            }
+            )
+        }
 
 
-			final def List<File> collectedStudioPluginLibs = []
-			project.task("copyStudioPluginForAssembly",dependsOn:"collectStudioPlugins")<<{
-				File studioPluginsLibDir = new File(engineSourceDirectory,"plugins/local-plugin-"+project.getName()+"/studio/lib")
-				project.allprojects { Project subProject ->
-					if(subProject.plugins.hasPlugin('de.ethinking.escenic.studio')&&subProject.studio.includePlugin){
-						LOG.info("copy studio plugin project:"+subProject.getName())
-						studioPluginsLibDir.mkdirs()
-						project.copy{
-							from subProject.jar
-							from subProject.configurations.runtimeStudio
-							into studioPluginsLibDir
-							eachFile{ FileCopyDetails detail ->
-								collectedStudioPluginLibs.add(detail.getRelativePath().getFile(studioPluginsLibDir))
-							}
-						}
-					}
-				}
-			}
+        project.repositories.metaClass.escenicLocal = {String repoLocation  ->
 
-			project.tasks["prepareStudioPlugins"].dependsOn "copyStudioPluginForAssembly" 
-			project.tasks["prepareStudioPlugins"].studioPluginLibs=collectedStudioPluginLibs
-			project.tasks["prepareStudioPlugins"].pluginsBasePath=new File(engineSourceDirectory,"plugins")
+            String repoURL =  project.file(repoLocation).toURI().toURL().toExternalForm()
+            if(LOG.isInfoEnabled()){
+                LOG.info("Setup Ivy-Repo with url:"+repoURL)
+            }
 
-			project.task("runAssembly",dependsOn:'prepareStudioPlugins')<<{
-				project.ant{
-					ant(dir: assemblyDirectory.getAbsolutePath(), antfile:"build.xml", inheritall:"false" ){
-						property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
-						target(name:"clean")
-						target(name:"ear")
-					}
-				}
-			}
-			project.task("afterAssembly",dependsOn:'runAssembly')<<{
-				File webappRepository =  new File(project.escenic.getLocalRepositoryLocation(),"webapps")
-				webappRepository.mkdirs()
-
-				Set<String> dublicationFilter = new HashSet<String>()
-				File assemblyDistWarFileLocations = new File(assemblyDirectory,"dist/war")
-
-				FileTree assembledWebapps = project.fileTree(dir: assemblyDistWarFileLocations.getAbsolutePath(), include: '**/*.war')
-
-				project.copy{
-					from assembledWebapps.files
-					into webappRepository
-					eachFile{ FileCopyDetails detail ->
-						dublicationFilter.add(detail.getName())
-					}
-
-				}
-
-				FileTree tree = project.fileTree(dir: engineSourceDirectory.getAbsolutePath(), include: '**/*.war')
-				project.copy{
-					from tree.files
-					into webappRepository
-					eachFile{ FileCopyDetails detail ->
-						if(dublicationFilter.contains(detail.getName())){
-							detail.exclude()
-						}
-					}
-				}
+            project.repositories.add(project.repositories.ivy{
+                url repoURL
+                layout "pattern", {artifact "[artifact]-[revision].zip"}
+            }
+            )
+        }
+    }
 
 
-				File assemblyEngineEarFile = new File(assemblyDirectory,"dist/engine.ear")
-				project.copy{
-					from project.zipTree(assemblyEngineEarFile)
-					into project.escenic.getLocalRepositoryLocation()
-					include "lib/**"
-				}
-			}
+    protected void evaluateDependencies(EscenicEngineModel escenicRepository,EscenicExtension escenicExtension){
+        escenicRepository.setupDependencies(escenicExtension)
+    }
 
-			project.task("cleanupAssembly",dependsOn:'afterAssembly',type:Delete)<<{
-				File studioPluginsLibDir = new File(engineSourceDirectory,"plugins/local-plugin-"+project.getName()+"/studio/lib")
-				delete studioPluginsLibDir
-			}
 
-			project.task("assembly",dependsOn:'cleanupAssembly')<<{
+    def addEngineAssemblyTasks(Project project){
 
-			}
-		}
-	}
+        if(project.configurations.assembly){
 
-	def addPublicEngineAssemblyTasks(Project project) {
-		project.task("collectStudioPlugins")<<{
+            
+            def assemblyVersion = createCacheKeyFromDependencies(project.configurations.assembly.dependencies)            
+            File assemblyDirectory = new File(project.escenic.getLocalRepositoryLocation(),"assembly/")
+            File engineSourceDirectory =  new File(project.escenic.getLocalRepositoryLocation(),"engine-source/")
+            //File initialAssemblyFile = new File(assemblyDirectory,"assemble.properties")
 
-		}
-		project.task("prepareStudioPlugins",type:StudioPluginAccessTask){
+            //if(initialAssemblyFile.exists()){
+            project.task("installAssembly",type:Delete){
 
-		}
-	}
+                inputs.property 'assemblyVersion',assemblyVersion
+                outputs.dir assemblyDirectory
+
+                doLast{
+                    delete assemblyDirectory
+                    assemblyDirectory.mkdirs()
+                    DependencyResolver resolver = new DependencyResolver()
+                    resolver.storeZipDistribution(project,project.configurations.assembly, assemblyDirectory)
+                }
+            }
+
+            project.task("prepareAssembly",dependsOn:'installAssembly',type:Delete){
+
+                ext.layerConfigDirectory = new File(assemblyDirectory,"conf")
+                ext.skeletonConf = new File(engineSourceDirectory,"siteconfig/bootstrap-skeleton")
+                ext.projectLayerConf = project.file(project.escenic.layerConf)
+
+                inputs.dir skeletonConf
+                inputs.dir projectLayerConf
+                outputs.dir layerConfigDirectory
+
+                delete layerConfigDirectory
+                
+                doLast{
+                   
+
+                    //copy layer from escenic distribution
+                    project.copy{
+                        from skeletonConf
+                        into layerConfigDirectory
+                    }
+                    //copy layer from project
+                    project.copy{
+                        from projectLayerConf
+                        into layerConfigDirectory
+                    }
+                }
+            }
+
+            project.task("initializeAssembly",dependsOn:'prepareAssembly'){
+
+                ext.srcDir = assemblyDirectory
+                ext.targetFile = new File(assemblyDirectory,"assemble.properties")
+
+                inputs.dir srcDir
+                outputs.file targetFile
+
+                doLast{
+                    project.ant{
+                        ant(dir: assemblyDirectory.getAbsolutePath(), antfile:"build.xml", inheritall:"false" ){
+                            property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
+                            target(name:"initialize")
+                        }
+                    }
+                }
+            }
+
+            project.tasks.findByName("collectStudioPlugins").dependsOn "initializeAssembly"
+
+
+
+            final def List<File> collectedStudioPluginLibs = []
+
+
+            File studioPluginsLibDir = new File(engineSourceDirectory,"plugins/local-plugin-"+project.getName()+"/studio/lib")
+            
+    
+            project.task("copyStudioPluginForAssembly",dependsOn:"collectStudioPlugins",type:Delete){
+
+                outputs.dir studioPluginsLibDir
+                delete studioPluginsLibDir
+                
+                doLast{
+
+                   
+                    
+                    studioPluginsLibDir.mkdirs()
+
+                    project.allprojects { Project subProject ->
+                        if(subProject.plugins.hasPlugin('de.ethinking.escenic.studio')&&subProject.studio.includePlugin){
+                            LOG.info("copy studio plugin project:"+subProject.getName())
+
+                            project.copy{
+                                from subProject.jar
+                                from subProject.configurations.runtimeStudio
+                                into studioPluginsLibDir
+                                eachFile{ FileCopyDetails detail ->
+                                    collectedStudioPluginLibs.add(detail.getRelativePath().getFile(studioPluginsLibDir))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            project.tasks["prepareStudioPlugins"].dependsOn "copyStudioPluginForAssembly"
+            project.tasks["prepareStudioPlugins"].studioPluginLibs=collectedStudioPluginLibs
+            project.tasks["prepareStudioPlugins"].pluginsBasePath=new File(engineSourceDirectory,"plugins")
+
+            project.task("runAssembly",dependsOn:'prepareStudioPlugins'){
+
+
+         
+                ext.distDir = new File(assemblyDirectory,"dist")
+                
+                outputs.dir distDir
+                inputs.files studioPluginsLibDir
+                inputs.property 'assemblyVersion',assemblyVersion
+                
+                doLast{
+                    project.ant{
+                        ant(dir: assemblyDirectory.getAbsolutePath(), antfile:"build.xml", inheritall:"false" ){
+                            property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
+                            target(name:"clean")
+                            target(name:"ear")
+                        }
+                    }
+                }
+            }
+
+            project.task("afterAssembly",dependsOn:'runAssembly',type:Delete){
+                
+                ext.webappRepository =  new File(project.escenic.getLocalRepositoryLocation(),"webapps")
+                ext.assemblyDistWarFileLocations = new File(assemblyDirectory,"dist/war")
+              
+                inputs.dir assemblyDistWarFileLocations
+                outputs.dir webappRepository
+
+
+                doLast{
+                    delete webappRepository
+                    webappRepository.mkdirs()
+
+                    Set<String> dublicationFilter = new HashSet<String>()
+                    FileTree assembledWebapps = project.fileTree(dir: assemblyDistWarFileLocations.getAbsolutePath(), include: '**/*.war')
+
+                    project.copy{
+                        from assembledWebapps.files
+                        into webappRepository
+                        eachFile{ FileCopyDetails detail ->
+                            dublicationFilter.add(detail.getName())
+                        }
+
+                    }
+
+                    FileTree tree = project.fileTree(dir: engineSourceDirectory.getAbsolutePath(), include: '**/*.war')
+                    project.copy{
+                        from tree.files
+                        into webappRepository
+                        eachFile{ FileCopyDetails detail ->
+                            if(dublicationFilter.contains(detail.getName())){
+                                detail.exclude()
+                            }
+                        }
+                    }
+
+                    File assemblyEngineEarFile = new File(assemblyDirectory,"dist/engine.ear")
+                    project.copy{
+                        from project.zipTree(assemblyEngineEarFile)
+                        into project.escenic.getLocalRepositoryLocation()
+                        include "lib/**"
+                    }
+                }
+            }
+
+            project.task("assembly",dependsOn:'afterAssembly'){
+
+            }
+        }
+        
+        project.task("cleanEscenic",type:Delete){
+            delete project.escenic.getLocalRepositoryLocation()
+        }
+    }
+
+    def addPublicEngineAssemblyTasks(Project project) {
+        project.task("collectStudioPlugins")<<{
+            
+        }
+        project.task("prepareStudioPlugins",type:StudioPluginAccessTask){
+
+        }
+    }
+
+
+    def createCacheKeyFromDependencies(DependencySet dependencies){
+
+        def dependencyList = []
+
+        String cacheKey = ''
+
+        for(Dependency dependency:dependencies){
+            dependencyList.add(dependency.getGroup()+":"+dependency.getName()+":"+dependency.getVersion())
+        }
+        dependencyList = dependencyList.sort()
+        cacheKey = dependencyList.iterator().join(',')
+
+        return cacheKey
+    }
 }

@@ -104,7 +104,22 @@ By using *escenicRepository* you can choose the official escenic content engine 
 
 === Task assembly
 
-The task *assembly* executes the esenic assembly tool and collect all content studio plugins for assembling into the content studio webstart application.
+The task *assembly* executes the esenic assembly tool and collect all content studio plugins for assembling into the content studio webstart application. 
+
+==== Signing content studio webstart extensions
+
+You can hook into the prepareStudioPlugins task inside your build.gradle to get access to all content studio plugin extensions for signing before they will be assembled in the content studio web application.
+
+----
+prepareStudioPlugins{
+	doLast{
+		studioPluginsLibDir.listFiles().each{ File jarFile ->
+		   //sign every jar with your cert here
+		}
+	}	
+}
+----
+ 
 
 === Task init-feature 
 

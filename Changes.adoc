@@ -13,7 +13,7 @@ v1.1, 2014-05-17  Changes
 prepareStudioPlugins{
 	doLast{
 		studioPluginsLibDir.listFiles().each{ File jarFile ->
-		   //sign jar with our cert here
+		   //sign jar with your cert here
 		}
 	}	
 }

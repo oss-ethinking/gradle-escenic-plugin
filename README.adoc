@@ -108,7 +108,7 @@ The task *assembly* executes the esenic assembly tool and collect all content st
 
 ==== Signing content studio webstart extensions
 
-You can hook into the prepareStudioPlugins task inside your build.gradle to get access to all content studio plugin extensions for signing before they will be assembled in the content studio web application.
+You can hook into the prepareStudioPlugins task inside your *build.gradle* to get access to all content studio plugin extensions for signing before they will be assembled in the content studio web application.
 
 ----
 prepareStudioPlugins{

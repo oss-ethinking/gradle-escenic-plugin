@@ -6,7 +6,18 @@ v1.1, 2014-05-17  Changes
 :source-highlighter: coderay
 :icons: font
 
-
+== 0.7.3
+  * cleaner input/outputs for assembly task 
+  * allow users to hook into prepareStudioPlugins Task like:
+----
+prepareStudioPlugins{
+	doLast{
+		studioPluginsLibDir.listFiles().each{ File jarFile ->
+		   //sign jar with our cert here
+		}
+	}	
+}
+----
 
 
 

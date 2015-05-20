@@ -51,13 +51,10 @@ class EscenicPluginTest extends EscenicPlugin{
 		studioProject.evaluate()
         secondstudioProject.evaluate()
 		
-		assertNotNull(parent.tasks.collectStudioPlugins)
-		assertTrue(parent.tasks.collectStudioPlugins.taskDependencies.getDependencies(parent.tasks.collectStudioPlugins).contains(studioProject.build))
-		
         
         
-        assertEquals(new Boolean(true),parent.tasks.copyStudioPluginForAssembly.inputs.properties.get('includeProject::studio'))
-        assertEquals(new Boolean(false),parent.tasks.copyStudioPluginForAssembly.inputs.properties.get('includeProject::second-studio'))
+        assertEquals(new Boolean(true),parent.tasks.copyStudioPlugins.inputs.properties.get('includeProject::studio'))
+        assertEquals(new Boolean(false),parent.tasks.copyStudioPlugins.inputs.properties.get('includeProject::second-studio'))
 	}
     
     

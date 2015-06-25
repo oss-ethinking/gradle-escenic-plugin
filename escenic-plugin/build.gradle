@@ -14,6 +14,18 @@ apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 
+evaluationDependsOn ':escenic-report'
+
+jar.dependsOn ':escenic-report:bundle'
+
+jar {
+    into('report') {
+        from project(':escenic-report').bundle.outputs.files
+    }
+}
+
+
+
 dependencies {
 	testCompile 'junit:junit:4.+'
 }

@@ -22,6 +22,7 @@ import org.gradle.api.logging.Logging
 
 import de.ethinking.gradle.CommonUtils
 import de.ethinking.gradle.extension.escenic.EscenicExtension
+import de.ethinking.gradle.extension.escenic.ExtensionUtils
 
 class EscenicEngineModel{
 
@@ -205,13 +206,13 @@ class EscenicEngineModel{
 			for(File f:pluginsDirectory.listFiles()){
 				if(f.isDirectory()){
 					File pluginEngineLibs = new File(f,"lib")
-					escenicExtension.addPluginEngineDependencies(transformPluginDirectoryToName(f.getName()),findJars(pluginEngineLibs,new HashSet<String>()))
+					escenicExtension.addPluginEngineDependencies(ExtensionUtils.transformPluginDirectoryToName(f.getName()),findJars(pluginEngineLibs,new HashSet<String>()))
 
 					File pluginPresentationLibs = new File(f,"publication/webapp/WEB-INF/lib")
-					escenicExtension.addPluginPresentationDependencies(transformPluginDirectoryToName(f.getName()), findJars(pluginPresentationLibs,new HashSet<String>()))
+					escenicExtension.addPluginPresentationDependencies(ExtensionUtils.transformPluginDirectoryToName(f.getName()), findJars(pluginPresentationLibs,new HashSet<String>()))
 
 					File pluginStudioLibs = new File(f,"studio/lib")
-					escenicExtension.addPluginStudioDependencies(transformPluginDirectoryToName(f.getName()), findJars(pluginStudioLibs,new HashSet<String>()))
+					escenicExtension.addPluginStudioDependencies(ExtensionUtils.transformPluginDirectoryToName(f.getName()), findJars(pluginStudioLibs,new HashSet<String>()))
 				}
 			}
 		}
@@ -244,19 +245,6 @@ class EscenicEngineModel{
 
 	}
 
-	protected String transformPluginDirectoryToName(String path){
-		int length=path.length();
-		for(int i=path.length()-1;i>=0;i--){
-			char c = path.charAt(i)
-			if(!Character.isLetter(c)){
-				length--;
-			}else{
-				//first letter -> we have to stop
-				i=-1;
-			}
-		}
-		return path.substring(0,length);
-	}
 
 	protected List<String> findJars(File f,Set<String> filter ){
 		List<String> jars = []

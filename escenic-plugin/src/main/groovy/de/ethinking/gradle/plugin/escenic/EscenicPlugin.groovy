@@ -24,7 +24,7 @@ import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.file.FileTree
 import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.Delete
-
+import org.gradle.api.file.DuplicatesStrategy
 
 
 
@@ -32,8 +32,10 @@ import de.ethinking.gradle.extension.escenic.EscenicExtension
 import de.ethinking.gradle.repository.DependencyResolver
 import de.ethinking.gradle.repository.EscenicEngineModel
 import de.ethinking.gradle.task.escenic.StudioPluginAccessTask
+import de.ethinking.gradle.task.escenic.EscenicReportTask
 
 import org.gradle.api.logging.Logging
+import org.gradle.tooling.BuildException
 
 import de.ethinking.gradle.task.escenic.CreateFeatureArtifactTask
 
@@ -44,29 +46,38 @@ class EscenicPlugin implements Plugin<Project> {
 
 
     void apply(Project project) {
-
+      
         project.configure(project) {
             project.extensions.create("escenic",EscenicExtension,project)
+            
         }
-
         project.configurations{
+            antRuntime
             engine
             plugin
             assembly
         }
-
-
+        project.repositories {
+            mavenCentral()
+        }
+        
+        project.dependencies{
+            antRuntime 'xalan:xalan:2.7.1'
+        }
+       
+     
         addPublicEngineAssemblyTasks(project)
         injectRepositoryClosures(project)
 
         //helper tasks
         project.task('init-feature', type: CreateFeatureArtifactTask)
 
-
+    
 
 
         project.afterEvaluate {
 
+         
             EscenicEngineModel escenicEngineModel = new EscenicEngineModel(project.escenic)
             if(!escenicEngineModel.isInitialized(project)){
                 println "Create local escenic repository"
@@ -91,7 +102,6 @@ class EscenicPlugin implements Plugin<Project> {
 
             addEngineAssemblyTasks(project)
         }
-
     }
 
     private injectRepositoryClosures(Project project) {
@@ -146,8 +156,13 @@ class EscenicPlugin implements Plugin<Project> {
 
 
             def assemblyVersion = createCacheKeyFromDependencies(project.configurations.assembly.dependencies)
+
+
             File assemblyDirectory = new File(project.escenic.getLocalRepositoryLocation(),"assembly/")
+            File assemblyPropertiesFile = new File(assemblyDirectory,"assemble.properties")
+            File nurseryLayerConfiguration =  project.file(project.escenic.layerConf)
             File engineSourceDirectory =  new File(project.escenic.getLocalRepositoryLocation(),"engine-source/")
+
 
             project.task("installAssembly",type:Delete){
 
@@ -166,7 +181,7 @@ class EscenicPlugin implements Plugin<Project> {
 
                 ext.layerConfigDirectory = new File(assemblyDirectory,"conf")
                 ext.skeletonConf = new File(engineSourceDirectory,"siteconfig/bootstrap-skeleton")
-                ext.projectLayerConf = project.file(project.escenic.layerConf)
+                ext.projectLayerConf =  nurseryLayerConfiguration
 
                 inputs.dir skeletonConf
                 inputs.dir projectLayerConf
@@ -193,18 +208,41 @@ class EscenicPlugin implements Plugin<Project> {
             project.task("initializeAssembly",dependsOn:'prepareAssembly'){
 
                 ext.srcDir = assemblyDirectory
-                ext.targetFile = new File(assemblyDirectory,"assemble.properties")
+                ext.targetFile = assemblyPropertiesFile
 
-                inputs.dir srcDir
+                inputs.property 'assemblyVersion',assemblyVersion
+                inputs.dir new File(assemblyDirectory,"resources")
+                inputs.properties project.escenic.assemblyProperties
                 outputs.file targetFile
 
+                
+                
                 doFirst{
+
                     project.ant{
                         ant(dir: assemblyDirectory.getAbsolutePath(), antfile:"build.xml", inheritall:"false" ){
                             property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
                             target(name:"initialize")
                         }
                     }
+
+                    File backupProperties = new File(assemblyPropertiesFile.getAbsolutePath()+".backup")
+                    if(!backupProperties.exists()){
+                        assemblyPropertiesFile.renameTo(backupProperties)
+                    }
+
+
+
+                    Properties props = new Properties()
+                    props.load(new FileInputStream(backupProperties))
+                    project.escenic.assemblyProperties.each{ String key, String value ->
+                        props.setProperty(key, value)
+                    }
+
+                    File defaultProps = new File(targetFile.getAbsolutePath())
+                    props.store(targetFile.newWriter(), "created by escenic gradle plugin")
+
+
                 }
             }
 
@@ -249,12 +287,18 @@ class EscenicPlugin implements Plugin<Project> {
                 ext.distDir = new File(assemblyDirectory,"dist")
 
                 outputs.dir distDir
-                inputs.files studioPluginsLibDir
+                inputs.dir   assemblyPropertiesFile
+                inputs.files studioPluginsLibDir,assemblyPropertiesFile
                 inputs.property 'assemblyVersion',assemblyVersion
 
                 doFirst{
+                    ClassLoader antClassLoader = org.apache.tools.ant.Project.class.classLoader
+                     project.configurations.antRuntime.each { File f ->
+                            antClassLoader.addURL(f.toURI().toURL())
+                    }
+                    
                     project.ant{
-                        ant(dir: assemblyDirectory.getAbsolutePath(), antfile:"build.xml", inheritall:"false" ){
+                        ant(dir: assemblyDirectory.getAbsolutePath(), antfile:"build.xml", inheritall:"false",useNativeBasedir:true){
                             property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
                             target(name:"clean")
                             target(name:"ear")
@@ -272,9 +316,9 @@ class EscenicPlugin implements Plugin<Project> {
                 outputs.dir webappRepository
 
                 delete webappRepository
-                
+
                 doLast{
-                    
+
                     webappRepository.mkdirs()
 
                     Set<String> dublicationFilter = new HashSet<String>()
@@ -312,6 +356,8 @@ class EscenicPlugin implements Plugin<Project> {
             project.task("assembly",dependsOn:'copyAssembles'){
 
             }
+        }else{
+            throw new BuildException("You must add an assembly tool version as dependencies.")
         }
 
         project.task("cleanEscenic",type:Delete){
@@ -320,8 +366,20 @@ class EscenicPlugin implements Plugin<Project> {
     }
 
     def addPublicEngineAssemblyTasks(Project project) {
+
         project.task("prepareStudioPlugins",type:StudioPluginAccessTask){
 
+        }
+
+        project.task("escenicReport",type:EscenicReportTask){
+            reportBase  = new File(project.getBuildDir(),"reports/escenic")
+            escenicExtension = project.escenic
+        }
+
+        project.task("serveEscenicReport",dependsOn:"escenicReport"){
+            doFirst{
+                java.awt.Desktop.getDesktop().open( new File(project.getBuildDir(),"reports/escenic/index.html"))
+            }
         }
     }
 

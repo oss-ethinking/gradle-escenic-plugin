@@ -1,0 +1,28 @@
+<md-card >
+    <h2 class="headline">Project {{report.name}}</h2>
+    <md-card-content>
+	    <h4>Release Notes</h4> 
+	    <ol>
+		    <li  ng-repeat="(key, value) in report.releaseNotes">
+		            <a href="{{value}}" target="_blank" >{{key}}</a>
+		    </li>
+	    </ol>
+
+ 		<h4>Documentation</h4>
+ 		<div ng-repeat="(key, value) in report.documentation">
+ 		<h5>{{key}}</h5>
+    	<ul>
+		    <li ng-repeat="(name, file) in value">
+		            <a href="{{file}}" target="_blank" >{{name}}</a>
+		    </li>
+        </ul>
+        </div>
+	 <md-list ng-repeat="(key, value)  in report.extensions"> 
+	     <md-subheader class="md-no-sticky">Extension {{key}}</md-subheader> 
+	       <md-list-item class="md-1-line" ng-repeat="item in value">
+	         {{item}}
+	       </md-list-item>
+	 </md-list> 
+	 </md-card-content>
+</md-card>
+

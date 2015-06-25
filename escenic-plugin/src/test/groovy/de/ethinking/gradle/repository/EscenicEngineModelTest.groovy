@@ -18,6 +18,7 @@ package de.ethinking.gradle.repository
 import org.junit.Test
 
 import de.ethinking.gradle.extension.escenic.EscenicExtension;
+import de.ethinking.gradle.extension.escenic.ExtensionUtils;
 import static org.junit.Assert.*
 
 class EscenicEngineModelTest extends EscenicEngineModel{
@@ -26,11 +27,11 @@ class EscenicEngineModelTest extends EscenicEngineModel{
 	@Test
 	public void transformPluginDirectoryToName() {
 		String noneVersionName ="test-plugin"
-		String result = transformPluginDirectoryToName(noneVersionName)
+		String result = ExtensionUtils.transformPluginDirectoryToName(noneVersionName)
 		assertEquals("test-plugin",result)
 		
 		String versionName ="test-plugin-123.123.9-12313"
-		result = transformPluginDirectoryToName(versionName)
+		result = ExtensionUtils.transformPluginDirectoryToName(versionName)
 		assertEquals("test-plugin",result)
 		
 	}

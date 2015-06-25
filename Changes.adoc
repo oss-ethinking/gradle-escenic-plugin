@@ -6,6 +6,14 @@ v1.1, 2014-05-17  Changes
 :source-highlighter: coderay
 :icons: font
 
+
+== 0.8.0
+   * add publication resources upload task
+   * add escenicReport task
+   * support for passing assembly properties to assembly tool
+   * add nursery layer conf files as assembly task dependencies 
+
+
 == 0.7.3
   * cleaner input/outputs for assembly task 
   * allow users to hook into prepareStudioPlugins Task like:

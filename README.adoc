@@ -41,13 +41,13 @@ The escenic content engine provides differnt interfaces for integration and deve
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.7.3"
+  id "de.ethinking.escenic" version "0.8.0"
   // or
-  id "de.ethinking.escenic.engine" version "0.7.3"
+  id "de.ethinking.escenic.engine" version "0.8.0"
   // or
-  id "de.ethinking.escenic.presentation" version "0.7.3"
+  id "de.ethinking.escenic.presentation" version "0.8.0"
   // or
-  id "de.ethinking.escenic.studio" version "0.7.3"
+  id "de.ethinking.escenic.studio" version "0.8.0"
 }
 ----
 
@@ -65,7 +65,7 @@ You must use the de.ethinking.escenic plugin as parent project which will provid
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.7.3"  //<1>
+  id "de.ethinking.escenic" version "0.8.0"  //<1>
 }
 
 repositories{
@@ -230,6 +230,29 @@ dependencies{
 <2> add presentation core compile dependencies
 <3> add the presentation libraries of the menu plugin as compile dependencies
 
+=== Publication Extension DSL
+
+The publication extension provides configuration options for the resources upload task
+
+[source, groovy]
+----
+plugins 
+publication{
+
+ publications "publication-1","publication-2"
+ resourcesHost "dev","http://development-host:8080/escenic-admin/publication-resources/"
+ resourcesHost "production","http://production-host:8080/escenic-admin/publication-resources/"
+ ignoreResourcesFailure = true
+}
+----
+
+=== Resources Upload Task
+
+The resources upload Tasks will be created from the configured publication extensions. For every host and publication a task will be created.
+
+----
+resources-<publicationname>-<host key like dev or production>
+----
 
 == Plugin de.ethinking.escenic.studio
 
@@ -304,6 +327,6 @@ task wrapper(type: Wrapper) {       //<2>
 
 == Copyright and License
 
-Copyright 2014-2015 (c) http://ethinking.de[eThinking]  and contributors.
+Copyright 2014-2015 (c) http://ethinking.de[eThinking GmbH]  and contributors.
 
 All versions, present and past, of Gradle Escenic Plugin are licensed under Apache 2.0 license.

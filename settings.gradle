@@ -1,2 +1,3 @@
 include 'escenic-plugin'
+include 'escenic-report'
 

@@ -1,0 +1,43 @@
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="lib/nv.d3.min.css">
+    <link rel="stylesheet" href="lib/angular-material.css">
+    <link rel="stylesheet" href="lib/ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- Angular Material Dependencies -->
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular-animate.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.1/angular-aria.min.js"></script>
+    <script src="lib/angular-material.js"></script>
+    <script src="lib/d3.min.js"></script>
+    <script src="lib/nv.d3.min.js"></script>
+
+
+    <script src="lib/angular-nvd3.min.js"></script>
+
+    <script src="report.js"></script>
+    <script src="app.js"></script>
+
+</head>
+<body ng-app="app" ng-controller="mainController" layout="column">
+<md-toolbar layout="row">
+    <div class="md-toolbar-tools">
+        <md-button ng-click="toggleSidenav('left')" hide-gt-sm class="menuBtn">
+            <span class="icon ion-navicon"></span>
+        </md-button>
+        <span>Escenic Content Engine Report - {{report.name}}</span>
+        <!-- fill up the space between left and right area -->
+        <span flex></span>
+    </div>
+</md-toolbar>
+<div flex layout="row">
+    <md-sidenav class="md-sidenav-left md-whiteframe-z2 md-padding" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')">
+        <md-button class="md-primary" ng-click="content='/templates/engine.html'">Content Engine</md-button>
+        <md-button class="md-primary" ng-click="content='/templates/plugins.html'">Plugins</md-button>
+        <md-button class="md-primary" ng-click="content='/templates/docs.html'">Documentation</md-button>
+    </md-sidenav>
+    <md-content flex id="content" ng-include src="content" layout-padding></md-content>
+</div>
+</body>
+</html>

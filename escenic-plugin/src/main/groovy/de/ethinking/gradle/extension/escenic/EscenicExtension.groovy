@@ -49,7 +49,6 @@ class EscenicExtension {
     
     public File getLocalRepositoryLocationFile(){
         return project.file(engineRepository)
-      
     }
     
 
@@ -57,8 +56,6 @@ class EscenicExtension {
         return getLocalRepositoryLocationFile().getAbsolutePath();
     }
 
-    
-    
 
     public void setPresenationDependencies(List<String> libs){
         presentationLibs=libs

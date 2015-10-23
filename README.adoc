@@ -191,7 +191,7 @@ plugins {
 
 //or if parent project uses de.ethinking.escenic plugin 
 
-apply plugin:de.ethinking.escenic.escenic"
+apply plugin:"de.ethinking.escenic.escenic"
 
 dependencies{
     compile engineAPI() //<1>
@@ -216,7 +216,7 @@ plugins {
 }
 //or
 
-apply plugin:de.ethinking.escenic.presentation"
+apply plugin:"de.ethinking.escenic.presentation"
 
 
 dependencies{
@@ -264,7 +264,7 @@ plugins {
 
 //or if parent project uses de.ethinking.escenic plugin 
 
-apply plugin:de.ethinking.escenic.studio"
+apply plugin:"de.ethinking.escenic.studio"
 
 dependencies{
     compile  studioCore()                     //<2>

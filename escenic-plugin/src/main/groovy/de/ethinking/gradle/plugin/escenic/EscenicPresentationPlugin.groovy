@@ -61,6 +61,9 @@ class EscenicPresentationPlugin implements Plugin<Project> {
                             resourcesBase = project.publication.resourcesBase
                             resourceUploadUrl= uploadUrl
                             ignoreFailure= project.publication.ignoreResourcesFailure
+                            if (project.publication.resourcesHostsAuth.containsKey(host)) {
+                                resourceUploadAuth = project.publication.resourcesHostsAuth.get(host)
+                            }
                         }
                     }
                 }

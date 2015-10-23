@@ -1,6 +1,6 @@
 = Gradle Escenic Plugins
 Simon Mieth <sm@ethinking.de>
-v1.1, 2015-05-17 eThinking Escenic Gradle Plugin
+v1.2, 2015-10-23 eThinking Escenic Gradle Plugin
 :toc: left
 :toclevels: 4
 :source-highlighter: coderay
@@ -8,7 +8,6 @@ v1.1, 2015-05-17 eThinking Escenic Gradle Plugin
 
 == Overview
 The  Gradle Escenic plugins provides a complete tooling set for a smart and agile development process with the  http://www.escenic.com[Escenic Content Engine]. 
-
 
 
 .Table of provided plugins 
@@ -22,9 +21,9 @@ The  Gradle Escenic plugins provides a complete tooling set for a smart and agil
 |=======================
 
 
-=== Which plugin I will need for ?
+=== Which plugin I will need for what?
 
-The escenic content engine provides differnt interfaces for integration and developing custom components.  
+The escenic content engine provides different interfaces for integration and developing custom components.  
 
 .Table of provided plugins 
 [options="header"]
@@ -41,13 +40,13 @@ The escenic content engine provides differnt interfaces for integration and deve
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.8.0"
+  id "de.ethinking.escenic" version "0.8.1"
   // or
-  id "de.ethinking.escenic.engine" version "0.8.0"
+  id "de.ethinking.escenic.engine" version "0.8.1"
   // or
-  id "de.ethinking.escenic.presentation" version "0.8.0"
+  id "de.ethinking.escenic.presentation" version "0.8.1"
   // or
-  id "de.ethinking.escenic.studio" version "0.8.0"
+  id "de.ethinking.escenic.studio" version "0.8.1"
 }
 ----
 
@@ -56,16 +55,16 @@ plugins {
 
 == Base Plugin de.ethinking.escenic 
 
-The escenic plugin manage the complete dependencies of the escenic content engine distribution and their plugins.
+The escenic plugin manages the complete dependencies of the escenic content engine distribution and it's plugins.
 
-You must use the de.ethinking.escenic plugin as parent project which will provide a local escenic repository and dependency management.
+You have to use the de.ethinking.escenic plugin as parent project which will provide a local escenic repository and dependency management.
 
 
 .Apply plugin
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.8.0"  //<1>
+  id "de.ethinking.escenic" version "0.8.1"  //<1>
 }
 
 repositories{
@@ -91,7 +90,7 @@ dependencies{
 
 === Repository configuration
 
-You must provide an escenic repository where plugins and the escenic content engine distributions are available. All dependencies are resolved by gradle itself so you can use any type of repositories like maven ivy or custom implementations. 
+You have to provide an escenic repository where plugins and the escenic content engine distributions are available. All dependencies are resolved by gradle itself so you can use any type of repositories like maven, ivy or custom implementations. 
 
 The escenic plugin provides shortcuts for ivy repositories with credentials and simple layout. 
 
@@ -241,14 +240,14 @@ publication{
 
  publications "publication-1","publication-2"
  resourcesHost "dev","http://development-host:8080/escenic-admin/publication-resources/"
- resourcesHost "production","http://production-host:8080/escenic-admin/publication-resources/"
+ resourcesHost "production","http://production-host:8080/escenic-admin/publication-resources/","admin","secret"
  ignoreResourcesFailure = true
 }
 ----
 
 === Resources Upload Task
 
-The resources upload Tasks will be created from the configured publication extensions. For every host and publication a task will be created.
+The resources upload Tasks will be created from the configured publication extensions. For every host and publication a task will be created. Basic auth of escenic admin is supported.
 
 ----
 resources-<publicationname>-<host key like dev or production>

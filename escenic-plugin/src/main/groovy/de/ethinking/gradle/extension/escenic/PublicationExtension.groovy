@@ -10,25 +10,32 @@ class PublicationExtension {
     def File resourcesBase
     def Project project
     def Map<String,String> resourcesHosts = new HashMap<String,String>()
-    
+    def Map<String,String> resourcesHostsAuth = new HashMap<String,String>()
+
     public PublicationExtension(Project project){
         this.project = project
         resourcesBase = project.file("src/main/resources/META-INF/escenic/publication-resources/escenic")
     }
-        
+
     def publications(String... args){
         publications = args
     }
-    
+
     def resourcesBase(String location){
         resourcesBase = project.file(location)
     }
-    
+
     def resourcesBase(File file){
         resourcesBase = file
     }
-    
+
     def resourcesHost(String host,String url){
         resourcesHosts.put(host, url)
+    }
+
+    def resourcesHost(String host,String url,String user,String pass){
+        resourcesHosts.put(host, url)
+        def auth = user + ":" + pass;
+        resourcesHostsAuth.put(host, auth.bytes.encodeBase64().toString())
     }
 }

@@ -13,21 +13,20 @@ class EscenicPresentationPluginTest {
         Project project = ProjectBuilder.builder().build()
         project.with{
             apply plugin: 'de.ethinking.escenic.presentation'
-            
+
             publication{
                 publications "pub1","pub2"
                 resourcesBase  project.file(".")
                 resourcesHost 'dev','http://localhost:8080/escenic-admin/'
-                resourcesHost 'live','http://live-backend:8080/escenic-admin/'
+                resourcesHost 'live','http://live-backend:8080/escenic-admin/','test','test'
             }
         }
-        
+
         project.evaluate()
 
         assertNotNull(project.publication.resourcesBase)
         assertTrue(project.publication.resourcesBase.exists())
         assertNotNull(project.tasks.'resources-pub1-dev')
         assertNotNull(project.tasks.findByName('resources-pub2-live'))
-        
     }
 }

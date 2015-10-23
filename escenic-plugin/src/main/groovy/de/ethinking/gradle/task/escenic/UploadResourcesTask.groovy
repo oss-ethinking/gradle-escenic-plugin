@@ -11,6 +11,7 @@ class UploadResourcesTask extends DefaultTask{
     def String resourceUploadUrl
     def File resourcesBase
     def boolean ignoreFailure=true;
+    def resourceUploadAuth
 
     @TaskAction
     def uploadResources(){
@@ -33,6 +34,9 @@ class UploadResourcesTask extends DefaultTask{
         final HttpURLConnection connection =target.openConnection()
         connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded")
         connection.addRequestProperty("Content-Length", ""+resource.length())
+        if (resourceUploadAuth) {
+            connection.addRequestProperty("Authorization", "Basic " + resourceUploadAuth)
+        }
 
         connection.setDoOutput(true)
         connection.outputStream.withWriter('UTF-8') { Writer writer ->
@@ -47,7 +51,7 @@ class UploadResourcesTask extends DefaultTask{
             File errorFile = new File(project.getBuildDir(),"reports/escenic-resource/"+resource.getName()+".html")
             errorFile.getParentFile().mkdirs()
             errorFile.write(response)
-            String message ="Inavlid Resource:"+resource.getName()+" Error:"+connection.responseCode+"\nResourceURL:"+target.toString()+"\nSee "+ errorFile.getAbsolutePath()
+            String message ="Invalid Resource:"+resource.getName()+"\nError:"+connection.responseCode+"\nResourceURL:"+target.toString()+"\nSee "+ errorFile.getAbsolutePath()
             if(ignoreFailure){
                 return message
             }

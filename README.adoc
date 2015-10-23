@@ -186,12 +186,12 @@ The de.ethinking.escenic.engine plugin provides access to all libraries from the
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic.escenic" version "0.x.x"  //<1>
+  id "de.ethinking.escenic.engine" version "0.x.x"  //<1>
 }
 
 //or if parent project uses de.ethinking.escenic plugin 
 
-apply plugin:"de.ethinking.escenic.escenic"
+apply plugin:"de.ethinking.escenic.engine"
 
 dependencies{
     compile engineAPI() //<1>

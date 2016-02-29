@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<content-types xmlns="http://xmlns.escenic.com/2008/content-type" xmlns:ui="http://xmlns.escenic.com/2008/interface-hints" xmlns:ctp="http://ethinking.de/content-type-processing" version="4">
+
+    <content-type name="widget_alice" ctp:ui-group="widgets_hackeshermarkt">
+        <ui:label>Widget: Alice</ui:label>
+        <ui:title-field>title</ui:title-field>
+        <panel name="default">
+            <ui:label>Layout</ui:label>
+            <field name="firstField" type="basic" mime-type="text/plain" ctp:in-publications="one,two">
+                <ui:label>Alice's first field</ui:label>
+                <ui:description>First field</ui:description>
+            </field>
+            <field name="secondField" type="basic" mime-type="text/plain">
+                <ui:label>Alice's second field</ui:label>
+                <ui:description>Second field</ui:description>
+                <constraints ctp:not-in-publications="one">
+                    <required>true</required>
+                </constraints>
+            </field>
+        </panel>
+    </content-type>
+
+</content-types>

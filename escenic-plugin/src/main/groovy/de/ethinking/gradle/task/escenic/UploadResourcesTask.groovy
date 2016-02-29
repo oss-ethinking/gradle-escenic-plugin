@@ -11,7 +11,7 @@ class UploadResourcesTask extends DefaultTask{
     def String resourceUploadUrl
     def File resourcesBase
     def boolean ignoreFailure=true;
-    def resourceUploadAuth
+    def String resourceUploadAuth
 
     @TaskAction
     def uploadResources(){

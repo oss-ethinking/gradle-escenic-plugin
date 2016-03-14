@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<content-types xmlns="http://xmlns.escenic.com/2008/content-type" xmlns:ui="http://xmlns.escenic.com/2008/interface-hints" version="4">
+
+    <ui:group name="widgets_alexanderplatz">
+        <ui:label>Alexanderplatz UI group</ui:label>
+    </ui:group>
+
+    <ui:group name="widgets_hackeshermarkt">
+        <ui:label>Hackeshermarkt UI group</ui:label>
+    </ui:group>
+
+</content-types>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><content-types xmlns="http://xmlns.escenic.com/2008/content-type" version="4">
+  <ui:group xmlns:ui="http://xmlns.escenic.com/2008/interface-hints" name="widgets_alexanderplatz">
+    <ui:label>Alexanderplatz UI group</ui:label>
+  </ui:group>
+  <ui:group xmlns:ui="http://xmlns.escenic.com/2008/interface-hints" name="widgets_hackeshermarkt">
+    <ui:label>Hackeshermarkt UI group</ui:label>
+    <ui:ref-content-type name="widget_alice"/>
+  </ui:group>
+  <content-type name="widget_alice">
+    <ui:label xmlns:ui="http://xmlns.escenic.com/2008/interface-hints">Widget: Alice</ui:label>
+    <ui:title-field xmlns:ui="http://xmlns.escenic.com/2008/interface-hints">title</ui:title-field>
+    <panel name="default">
+      <ui:label xmlns:ui="http://xmlns.escenic.com/2008/interface-hints">Layout</ui:label>
+      <field name="firstField" type="basic" mime-type="text/plain">
+        <ui:label xmlns:ui="http://xmlns.escenic.com/2008/interface-hints">Alice's first field</ui:label>
+        <ui:description xmlns:ui="http://xmlns.escenic.com/2008/interface-hints">First field</ui:description>
+      </field>
+      <field name="secondField" type="basic" mime-type="text/plain">
+        <ui:label xmlns:ui="http://xmlns.escenic.com/2008/interface-hints">Alice's second field</ui:label>
+        <ui:description xmlns:ui="http://xmlns.escenic.com/2008/interface-hints">Second field</ui:description>
+      </field>
+    </panel>
+  </content-type>
+</content-types>

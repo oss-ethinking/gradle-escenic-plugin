@@ -6,6 +6,9 @@ v1.2, 2015-10-23  Changes
 :source-highlighter: coderay
 :icons: font
 
+== 0.8.2
+   * add processor which takes XML fragments and creates `content-type.xml` for a publication
+
 == 0.8.1
    * add optional authentication to publication resources upload task
 

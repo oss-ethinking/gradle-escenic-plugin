@@ -60,7 +60,7 @@ class ContentTypeFileProcessorTest {
         Project project = ProjectBuilder.builder().build()
         FileCollection injectingPaths=project.files(load('widget-common.xml'), load('widgetA.xml'))
         String result = instance.createFileForPublication(publicationName, load('base.xml'), injectingPaths)
-        assertEquals expected, result
+        assertEquals expected.replaceAll("\\n","").replaceAll("\\r",""), result.replaceAll("\\n","").replaceAll("\\r","")
     }
 
     /**

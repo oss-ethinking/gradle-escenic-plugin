@@ -11,23 +11,33 @@ class UploadResourcesTask extends DefaultTask{
     def String publication
     def ResourceHost resourceHost
     def File resourcesBase
-    def boolean ignoreFailure=true;
+    def boolean ignoreFailure=true
 
     @TaskAction
     def uploadResources(){
-        
         File sourceDirectory = findSourceDirectory()
-             
         if(sourceDirectory.exists()){
-            sourceDirectory.listFiles().each(){ File resourceFile->
-                if(resourceFile.isFile()){
-                    String resource = resourceFile.getName().replaceAll("\\..*", "")
-                    URL url = new URL(resourceHost.getUrl()+publication+"/escenic/"+resource)
-                    String response= uploadResource(resourceFile, url)
-                    if(response.length()>0){
-                        println "Invalid resource:"+resourceFile.getAbsolutePath()
-                        println "Response:"+response
+            if(resourceHost.usePublicationDirectories){
+                sourceDirectory.listFiles().each(){ File child->
+                    if(child.isDirectory()){
+                        processPublicationDirectory(child,child.getName())
                     }
+                }
+            }else{
+                processPublicationDirectory(sourceDirectory,publication)
+            }
+        }
+    }
+
+   def processPublicationDirectory(File resourceDirectory,String publication) {
+        resourceDirectory.listFiles().each(){ File resourceFile->
+            if(resourceFile.isFile()){
+                String resource = resourceFile.getName().replaceAll("\\..*", "")
+                URL url = new URL(resourceHost.getUrl()+publication+"/escenic/"+resource)
+                String response= uploadResource(resourceFile, url)
+                if(response.length()>0){
+                    println "Invalid resource:"+resourceFile.getAbsolutePath()
+                    println "Response:"+response
                 }
             }
         }
@@ -35,29 +45,34 @@ class UploadResourcesTask extends DefaultTask{
 
     def File findSourceDirectory() {
         if(resourceHost.getResourceBase()){
-           return resourceHost.getResourceBase()
+            return resourceHost.getResourceBase()
         }else{
             return resourcesBase
         }
     }
 
-    
+
     def injectAuthentication(HttpURLConnection connection){
+      
         if(resourceHost.user && resourceHost.password){
-            connection.addRequestProperty("Authorization", "Basic " + resourceUploadAuth)
+            String base64 = (resourceHost.user+":"+resourceHost.password).getBytes('iso-8859-1').encodeBase64().toString()
+            connection.setRequestProperty("Authorization", "Basic "+base64)
         }
     }
-    
-    
-    
+
+
+
     def uploadResource(File resource,URL target) throws BuildException{
         final HttpURLConnection connection=target.openConnection()
-        connection.addRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-        connection.addRequestProperty("Content-Length", ""+resource.length())
-       
-        injectAuthentication(connection);
-        
+        connection.setDoInput(true)
         connection.setDoOutput(true)
+        
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+        connection.setRequestProperty("Content-Length", ""+resource.length())
+
+        injectAuthentication(connection);
+
+
         connection.outputStream.withWriter('UTF-8') { Writer writer ->
             writer << resource.getText()
         }

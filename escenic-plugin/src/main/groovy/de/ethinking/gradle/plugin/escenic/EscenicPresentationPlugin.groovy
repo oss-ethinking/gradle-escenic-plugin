@@ -45,19 +45,30 @@ class EscenicPresentationPlugin implements Plugin<Project> {
 
     def applyPresentationTasks(Project project){
         if(project.publication.provideResources && !project.publication.resourcesHosts.isEmpty()){
-           
-                List<String> publications = []
-                if(project.publication.publications){
-                    project.publication.publications.each{ String publicationName ->
-                        publications.add(publicationName)
+
+            project.task("preparePublicationResources"){}
+            List<String> publications = []
+            
+            if(project.publication.publications){
+                project.publication.publications.each{ String publicationName ->
+                    publications.add(publicationName)
+                }
+            }else{
+                publications.add(project.getName())
+            }
+            
+            project.publication.resourcesHosts.each { String hostName, ResourceHost host ->
+                if(host.isUsePublicationDirectories()){
+                    String taskName = "resources-"+hostName
+                    project.task(taskName,type:UploadResourcesTask,dependsOn:"preparePublicationResources",group:"resources upload",description:"Uploads resources for host "+hostName){
+                        resourcesBase = project.publication.resourcesBase
+                        ignoreFailure= project.publication.ignoreResourcesFailure
+                        resourceHost = host
                     }
                 }else{
-                    publications.add(project.getName())
-                }
-                publications.each{ String resourcePublication ->
-                    project.publication.resourcesHosts.each { String hostName, ResourceHost host ->
+                    publications.each{ String resourcePublication ->
                         String taskName = "resources-"+resourcePublication+"-"+hostName
-                        project.task(taskName,type:UploadResourcesTask){
+                        project.task(taskName,type:UploadResourcesTask,dependsOn:"preparePublicationResources",group:"resources upload",description:"Uploads resources for publication "+resourcePublication+" on host "+hostName){
                             publication = resourcePublication
                             resourcesBase = project.publication.resourcesBase
                             ignoreFailure= project.publication.ignoreResourcesFailure
@@ -66,6 +77,6 @@ class EscenicPresentationPlugin implements Plugin<Project> {
                     }
                 }
             }
-        
+        }
     }
 }

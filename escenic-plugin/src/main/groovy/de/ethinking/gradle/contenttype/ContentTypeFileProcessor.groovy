@@ -17,6 +17,7 @@ package de.ethinking.gradle.contenttype
 import groovy.xml.Namespace
 import groovy.xml.QName
 import groovy.xml.XmlUtil
+import org.gradle.api.file.FileCollection
 
 /**
  * Provides methods to merge and build content-types.xml file.
@@ -32,11 +33,11 @@ class ContentTypeFileProcessor {
      * @param injectingPaths list of fragment file paths
      * @return XMLParser root node with the resulting XML tree
      */
-    private Node injectInto(String basePath, List<String> injectingPaths) {
-        Node baseRoot = new XmlParser(false, true).parse(basePath)
+    private Node injectInto(File baseFile, FileCollection injectingPaths) {
+        Node baseRoot = new XmlParser(false, true).parse(baseFile)
 
         // put the injecting XMLs into the base
-        injectingPaths.each { String injectingPath ->
+        injectingPaths.getFiles().each { File injectingPath ->
             Node injectingRoot = new XmlParser(false, true).parse(injectingPath)
             baseRoot.children().addAll(injectingRoot.children())
         }
@@ -131,9 +132,9 @@ class ContentTypeFileProcessor {
      * @param injectingPaths list of paths to inject into the base
      * @return created file content
      */
-    String createFileForPublication(String publicationName, String basePath, List<String> injectingPaths) {
+    String createFileForPublication(String publicationName, File baseFile, FileCollection fragments) {
         Node root;
-        root = injectInto(basePath, injectingPaths)
+        root = injectInto(baseFile, fragments)
         processCustomAttributes(root)
         processPublication(publicationName, root)
         XmlUtil.serialize(root)

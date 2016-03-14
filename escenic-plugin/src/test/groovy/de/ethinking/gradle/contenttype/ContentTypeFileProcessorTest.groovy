@@ -14,8 +14,11 @@
  */
 package de.ethinking.gradle.contenttype
 
+import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.junit.Before
 import org.junit.Test
+import org.gradle.testfixtures.ProjectBuilder
 
 import static org.junit.Assert.assertEquals
 
@@ -54,7 +57,8 @@ class ContentTypeFileProcessorTest {
      */
     private void publication(String publicationName, String expectedResourceName) {
         String expected = new Scanner(ContentTypeFileProcessorTest.getResourceAsStream(expectedResourceName), 'UTF-8').useDelimiter('\\A').next()
-        List<String> injectingPaths = [ load('widget-common.xml'), load('widgetA.xml') ]
+        Project project = ProjectBuilder.builder().build()
+        FileCollection injectingPaths=project.files(load('widget-common.xml'), load('widgetA.xml'))
         String result = instance.createFileForPublication(publicationName, load('base.xml'), injectingPaths)
         assertEquals expected, result
     }
@@ -63,7 +67,7 @@ class ContentTypeFileProcessorTest {
      * @param resourceName resource name
      * @return URI where the resource is
      */
-    private static String load(String resourceName) {
-        ContentTypeFileProcessorTest.getResource(resourceName).toString()
+    private static File load(String resourceName) {
+       return new File(ContentTypeFileProcessorTest.getResource(resourceName).toURI())
     }
 }

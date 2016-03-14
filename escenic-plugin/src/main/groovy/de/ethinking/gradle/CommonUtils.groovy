@@ -22,7 +22,6 @@ class CommonUtils {
 	public static unzip(File archiveFile,File destinationFile){
 
 		if(archiveFile.exists()){
-
 			AntBuilder ant = new AntBuilder()
 			ant.unzip(  src:archiveFile.getAbsolutePath(),
 			dest:destinationFile.getAbsolutePath(),

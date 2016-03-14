@@ -9,8 +9,8 @@ class PublicationExtension {
     def Boolean ignoreResourcesFailure=true;
     def File resourcesBase
     def Project project
-    def Map<String,String> resourcesHosts = new HashMap<String,String>()
-    def Map<String,String> resourcesHostsAuth = new HashMap<String,String>()
+    def Map<String,String> resourcesHosts = new HashMap<String,ResourceHost>()
+
 
     public PublicationExtension(Project project){
         this.project = project
@@ -30,12 +30,29 @@ class PublicationExtension {
     }
 
     def resourcesHost(String host,String url){
-        resourcesHosts.put(host, url)
+        ResourceHost resourceHost = new ResourceHost()
+        resourceHost.setUrl(url)
+        resourcesHosts.put(host, resourceHost)
     }
 
-    def resourcesHost(String host,String url,String user,String pass){
-        resourcesHosts.put(host, url)
-        def auth = user + ":" + pass;
-        resourcesHostsAuth.put(host, auth.bytes.encodeBase64().toString())
+    def resourcesHost(String host,String url,String user,String password){
+        
+        ResourceHost resourceHost = new ResourceHost()
+        resourceHost.setUrl(url)
+        resourceHost.setPassword(password)
+        resourceHost.setUser(user)
+        
+        resourcesHosts.put(host, resourceHost)
+    }
+    
+    def resourcesHost(String host,Closure closure){
+        
+        ResourceHost resourceHost = new ResourceHost()
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = resourceHost
+        closure.call()
+        
+        resourcesHosts.put(host, resourceHost)
+        
     }
 }

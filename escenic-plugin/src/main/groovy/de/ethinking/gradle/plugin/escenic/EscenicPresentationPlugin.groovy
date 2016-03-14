@@ -20,6 +20,7 @@ import org.gradle.api.file.FileCollection
 import de.ethinking.gradle.extension.escenic.PublicationExtension
 import de.ethinking.gradle.extension.escenic.EscenicExtension
 import de.ethinking.gradle.extension.escenic.ExtensionUtils
+import de.ethinking.gradle.extension.escenic.ResourceHost
 import de.ethinking.gradle.task.escenic.UploadResourcesTask
 
 class EscenicPresentationPlugin implements Plugin<Project> {
@@ -44,30 +45,27 @@ class EscenicPresentationPlugin implements Plugin<Project> {
 
     def applyPresentationTasks(Project project){
         if(project.publication.provideResources && !project.publication.resourcesHosts.isEmpty()){
-            if(project.publication.resourcesBase.exists()){
+           
                 List<String> publications = []
                 if(project.publication.publications){
-                    project.publication.publications.each{ String publication ->
-                        publications.add(publication)
+                    project.publication.publications.each{ String publicationName ->
+                        publications.add(publicationName)
                     }
                 }else{
                     publications.add(project.getName())
                 }
                 publications.each{ String resourcePublication ->
-                    project.publication.resourcesHosts.each { String host, String uploadUrl ->
-                        String taskName = "resources-"+resourcePublication+"-"+host
+                    project.publication.resourcesHosts.each { String hostName, ResourceHost host ->
+                        String taskName = "resources-"+resourcePublication+"-"+hostName
                         project.task(taskName,type:UploadResourcesTask){
                             publication = resourcePublication
                             resourcesBase = project.publication.resourcesBase
-                            resourceUploadUrl= uploadUrl
                             ignoreFailure= project.publication.ignoreResourcesFailure
-                            if (project.publication.resourcesHostsAuth.containsKey(host)) {
-                                resourceUploadAuth = project.publication.resourcesHostsAuth.get(host)
-                            }
+                            resourceHost = host
                         }
                     }
                 }
             }
-        }
+        
     }
 }

@@ -115,16 +115,17 @@ class EscenicPlugin implements Plugin<Project> {
                 }
             }
 
-            project.repositories.add(project.repositories.ivy{
-                url repoURL
-                layout "pattern", {artifact "[artifact]-[revision].zip"}
-                if(user && passwd){
-                    credentials {
-                        username user
-                        password passwd
+            project.repositories.add(
+                    project.repositories.ivy{
+                        url repoURL
+                        layout "pattern", {artifact "[artifact]-[revision].zip"}
+                        if(user && passwd){
+                            credentials {
+                                username user
+                                password passwd
+                            }
+                        }
                     }
-                }
-            }
             )
         }
 
@@ -141,6 +142,17 @@ class EscenicPlugin implements Plugin<Project> {
                 layout "pattern", {artifact "[artifact]-[revision].zip"}
             }
             )
+        }
+        
+        project.repositories.metaClass.escenicMaven = {String user,String passwd  ->
+            project.repositories.add(project.repositories.maven {
+                url "http://maven.escenic.com"
+                credentials {
+                    username = user
+                    password = passwd
+               }
+            }
+           )
         }
     }
 

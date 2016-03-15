@@ -115,20 +115,6 @@ class ContentTypeFileProcessor {
      * Creates a content-type.xml file for a specified publication.
      * @param publicationName publication name
      * @param basePath path of the base config-type.xml
-     * @param injectingCommonPath path of the common XML
-     * @param injectingPathPattern pattern specifying paths of other injecting XMLs
-     * @return created file content
-     */
-    String createFileForPublication(String publicationName, String basePath, String injectingCommonPath, String injectingPathPattern) {
-        // TODO use injectingPathPattern, which can include *, to to get a list of other paths
-        List<String> injectingPaths = Collections.singletonList(injectingCommonPath)
-        createFileForPublication(publicationName, basePath, injectingPaths)
-    }
-
-    /**
-     * Creates a content-type.xml file for a specified publication.
-     * @param publicationName publication name
-     * @param basePath path of the base config-type.xml
      * @param injectingPaths list of paths to inject into the base
      * @return created file content
      */

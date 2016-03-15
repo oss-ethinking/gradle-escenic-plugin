@@ -58,7 +58,7 @@ class ContentTypeFileProcessorTest {
     private void publication(String publicationName, String expectedResourceName) {
         String expected = new Scanner(ContentTypeFileProcessorTest.getResourceAsStream(expectedResourceName), 'UTF-8').useDelimiter('\\A').next()
         Project project = ProjectBuilder.builder().build()
-        FileCollection injectingPaths=project.files(load('widget-common.xml'), load('widgetA.xml'))
+        FileCollection injectingPaths = project.files(load('widget-common.xml'), load('widgetA.xml'))
         String result = instance.createFileForPublication(publicationName, load('base.xml'), injectingPaths)
         assertEquals expected.replaceAll("\\n","").replaceAll("\\r",""), result.replaceAll("\\n","").replaceAll("\\r","")
     }

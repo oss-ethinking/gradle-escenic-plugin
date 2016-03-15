@@ -18,11 +18,15 @@ import groovy.xml.Namespace
 import groovy.xml.QName
 import groovy.xml.XmlUtil
 import org.gradle.api.file.FileCollection
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Provides methods to merge and build content-types.xml file.
  */
 class ContentTypeFileProcessor {
+
+    static final Logger logger = LoggerFactory.getLogger(ContentTypeFileProcessor.class)
 
     static final Namespace CTP = new Namespace('http://ethinking.de/content-type-processing', 'ctp')
     static final Namespace UI = new Namespace('http://xmlns.escenic.com/2008/interface-hints', 'ui')
@@ -55,7 +59,14 @@ class ContentTypeFileProcessor {
 
         // make a map of groups
         root[(QName) UI.group].each { Node group ->
-            groupMap.put((String) group.'@name', group)
+            String groupName = (String) group.'@name'
+
+            if (groupMap.containsKey(groupName)) {
+                throw new ContentTypeProcessingException("Merged file contains multiple groups with unique name '$groupName'")
+            } else {
+
+                groupMap.put(groupName, group)
+            }
         }
 
         root.'content-type'.each { Node contentType ->
@@ -65,7 +76,7 @@ class ContentTypeFileProcessor {
 
                 Node group = groupMap.get(uiGroup)
                 if (group == null) {
-                    throw new ContentTypeProcessingException("Specified UI group $uiGroup doesn't exist")
+                    throw new ContentTypeProcessingException("Specified UI group '$uiGroup' doesn't exist in the merged file")
                 }
 
                 // create new node ref-content-type with attribute name from content type and add it to the group
@@ -123,10 +134,16 @@ class ContentTypeFileProcessor {
      */
     String createFileForPublication(String publicationName, File baseFile, FileCollection fragments) {
         Node root;
-        root = injectInto(baseFile, fragments)
-        processCustomAttributes(root)
-        processPublication(publicationName, root)
-        XmlUtil.serialize(root)
+        try {
+            root = injectInto(baseFile, fragments)
+            processCustomAttributes(root)
+            processPublication(publicationName, root)
+            XmlUtil.serialize(root)
+        } catch (RuntimeException e) {
+            logger.error("Merging of content type files failed for publication: $publicationName, baseFile: $baseFile, " +
+                    "fragments: ${fragments.getAsPath()}")
+            throw e
+        }
     }
 
 }

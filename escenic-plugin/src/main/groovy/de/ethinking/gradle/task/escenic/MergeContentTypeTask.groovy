@@ -18,7 +18,8 @@ import de.ethinking.gradle.contenttype.ContentTypeFileProcessor
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction
 
@@ -30,17 +31,16 @@ class MergeContentTypeTask extends DefaultTask {
     @InputFile
     File baseFile
 
-    @Input
+    @InputFiles
     FileCollection fragments
 
     @OutputFile
     File outputFile
 
+    ContentTypeFileProcessor processor = new ContentTypeFileProcessor()
+
     @TaskAction
     def merge(){
-        System.out.println("Merging content types for publication $publication")
-
-        ContentTypeFileProcessor processor = new ContentTypeFileProcessor()
         String result = processor.createFileForPublication(publication,baseFile,fragments)
         outputFile.getParentFile().mkdirs()
         outputFile.text = result

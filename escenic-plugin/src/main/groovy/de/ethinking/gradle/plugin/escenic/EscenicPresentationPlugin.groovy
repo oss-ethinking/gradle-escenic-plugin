@@ -14,14 +14,11 @@
  */
 package de.ethinking.gradle.plugin.escenic
 
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
 import de.ethinking.gradle.extension.escenic.PublicationExtension
-import de.ethinking.gradle.extension.escenic.EscenicExtension
-import de.ethinking.gradle.extension.escenic.ExtensionUtils
 import de.ethinking.gradle.extension.escenic.ResourceHost
 import de.ethinking.gradle.task.escenic.UploadResourcesTask
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 
 class EscenicPresentationPlugin implements Plugin<Project> {
 

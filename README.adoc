@@ -253,6 +253,11 @@ The resources upload Tasks will be created from the configured publication exten
 resources-<publicationname>-<host key like dev or production>
 ----
 
+=== Merge multiple `content-type.xml` files
+
+Instead of a single huge monolithic `content-type.xml`, you can split it into one base and multiple fragments. Calling
+task `mergeContentType` will then merge these together to create a single big `content-type.xml` to be used in Escenic.
+
 == Plugin de.ethinking.escenic.studio
 
 .Apply plugin

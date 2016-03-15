@@ -303,8 +303,91 @@ preparePublicationResources.dependsOn  createResources
 
 === Merge multiple `content-type.xml` files
 
-Instead of a single huge monolithic `content-type.xml`, you can split it into one base and multiple fragments. Calling
-task `mergeContentType` will then merge these together to create a single big `content-type.xml` to be used in Escenic.
+Instead of a single huge monolithic `content-type.xml`, you can split it into one base and multiple fragments.
+To use this feature, define a task of type `MergeContentTypeTask` and set inside the required parameters. This task type will inject
+fragments to a base file and create a single big `content-type.xml`.
+
+There is a preprocessing attribute `ui-group` from `http://ethinking.de/content-type-processing` namespace, which
+you can use to insert a reference from content type into group.
+
+Other preprocessing attribute are `in-publications` and `not-in-publications`. You can use these on any element
+to control in which publication they will be included or excluded.
+
+The required properties of the `MergeContentTypeTask` are:
+
+* `String publication` - which publication to use for publication inclusion/exclusion preprocessing,
+* `File baseFile` - the file into which the fragments will be injected,
+* `FileCollection fragments` - files to be injected into the base (note that you can use `fileTree`) and
+* `File outputFile` - where the merged file will be.
+
+For example we have this `baseFile`:
+
+[source, xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<content-types xmlns="http://xmlns.escenic.com/2008/content-type" version="4">
+</content-types>
+----
+
+and a fragment XML containing group definition:
+
+[source, xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<content-types xmlns="http://xmlns.escenic.com/2008/content-type"
+xmlns:ui="http://xmlns.escenic.com/2008/interface-hints" version="4">
+    <ui:group name="widgets_hackeshermarkt">
+        <ui:label>Hackeshermarkt UI group</ui:label>
+    </ui:group>
+</content-types>
+----
+
+and another fragment XML containing content type definition:
+
+[source, xml]
+----
+<?xml version="1.0" encoding="utf-8"?>
+<content-types xmlns="http://xmlns.escenic.com/2008/content-type"
+xmlns:ui="http://xmlns.escenic.com/2008/interface-hints"
+xmlns:ctp="http://ethinking.de/content-type-processing" version="4"> //<1>
+    <content-type name="widget_alice" ctp:ui-group="widgets_hackeshermarkt"> //<2>
+        <ui:label ctp:in-publications="one">Widget: Alice</ui:label> //<3>
+    </content-type>
+</content-types>
+----
+<1> `ctp` namespace
+<2> preprocessing attribute `ui-group`
+<3> preprocessing attribute `in-publications`
+
+The merged result is this:
+
+[source, xml]
+----
+<?xml version="1.0"?>
+<content-types xmlns="http://xmlns.escenic.com/2008/content-type" version="4">
+    <ui:group xmlns:ui="http://xmlns.escenic.com/2008/interface-hints" name="widgets_hackeshermarkt">
+        <ui:label>Hackeshermarkt UI group</ui:label>
+        <ui:ref-content-type name="widget_alice"/>
+    </ui:group>
+    <content-type name="widget_alice">
+        <ui:label xmlns:ui="http://xmlns.escenic.com/2008/interface-hints">Widget: Alice</ui:label>
+    </content-type>
+</content-types>
+----
+
+Define the task of type `MergeContentTypeTask` with your own configuration e.g. like this:
+
+[source, groovy]
+----
+task mergeContentType(type: de.ethinking.gradle.task.escenic.MergeContentTypeTask) {
+    publication = 'news'
+    baseFile = file('config/content-type.xml')
+    fragments = fileTree('config/fragments') {
+        include '*/content-type.xml'
+    }
+    outputFile = new File(buildDir, 'content-type.xml')
+}
+----
 
 
 

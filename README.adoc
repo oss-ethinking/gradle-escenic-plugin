@@ -42,11 +42,11 @@ The escenic content engine provides different interfaces for integration and dev
 plugins {
   id "de.ethinking.escenic" version "0.9.0"
   // or
-  id "de.ethinking.escenic.engine" version "0.8.1"
+  id "de.ethinking.escenic.engine" version "0.9.0"
   // or
-  id "de.ethinking.escenic.presentation" version "0.8.1"
+  id "de.ethinking.escenic.presentation" version "0.9.0"
   // or
-  id "de.ethinking.escenic.studio" version "0.8.1"
+  id "de.ethinking.escenic.studio" version "0.9.0"
 }
 ----
 
@@ -64,7 +64,7 @@ You have to use the de.ethinking.escenic plugin as parent project which will pro
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.8.1"  //<1>
+  id "de.ethinking.escenic" version "0.9.0"  //<1>
 }
 
 repositories{

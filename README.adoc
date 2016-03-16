@@ -262,7 +262,7 @@ fragments to a base file and create a single big `content-type.xml`.
 There is a preprocessing attribute `ui-group` from `http://ethinking.de/content-type-processing` namespace, which
 you can use to insert a reference from content type into group.
 
-Other preprocessing attribute are `in-publications` and `not-in-publications`. You can use these on any element
+Other preprocessing attributes are `in-publications` and `not-in-publications`. You can use these on any element
 to control in which publication they will be included or excluded.
 
 The required properties of the `MergeContentTypeTask` are:
@@ -311,7 +311,7 @@ xmlns:ctp="http://ethinking.de/content-type-processing" version="4"> //<1>
 <2> preprocessing attribute `ui-group`
 <3> preprocessing attribute `in-publications`
 
-The merged result is this:
+The merged result for publication `one` is this:
 
 [source, xml]
 ----

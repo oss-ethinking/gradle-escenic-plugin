@@ -13,7 +13,7 @@ The  Gradle Escenic plugins provides a complete tooling set for a smart and agil
 .Table of provided plugins 
 [options="header"]
 |=======================
-|plugin Id                              |Description                                                    |DependsOn
+|plugin Id                           |Description                                                    |DependsOn
 |de.ethinking.escenic                |Manage dependencies to escenic engine and plugin repositories     |        
 |de.ethinking.escenic.engine         |Provides access to engine dependencies                            |escenic 
 |de.ethinking.escenic.presentation   |Provides access to presentation dependencies                      |escenic
@@ -40,13 +40,13 @@ The escenic content engine provides different interfaces for integration and dev
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.8.1"
+  id "de.ethinking.escenic" version "0.9.0"
   // or
-  id "de.ethinking.escenic.engine" version "0.8.1"
+  id "de.ethinking.escenic.engine" version "0.9.0"
   // or
-  id "de.ethinking.escenic.presentation" version "0.8.1"
+  id "de.ethinking.escenic.presentation" version "0.9.0"
   // or
-  id "de.ethinking.escenic.studio" version "0.8.1"
+  id "de.ethinking.escenic.studio" version "0.9.0"
 }
 ----
 
@@ -64,29 +64,31 @@ You have to use the de.ethinking.escenic plugin as parent project which will pro
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.8.1"  //<1>
+  id "de.ethinking.escenic" version "0.9.0"  //<1>
 }
 
 repositories{
-    escenicLocal('my/local/repository')   //<2>
-    escenicRepository('http://remote-escenic-repository>/escenic/57/','UserName','Password')   //<3>
+    escenicMaven('UserName','Password')   //<2>
+    escenicLocal('my/local/repository')   //<3>
+    escenicRepository('http://remote-escenic-repository>/escenic/57/','UserName','Password')//<4>
 }
 
 dependencies{
-      engine 'com.escenic:engine:5.7....'   //<4>  
+      engine 'com.escenic:engine:5.7....'   //<5>  
             
       plugin 'com.escenic:<plugin>:..'
       plugin 'com.escenic:<another plugin>:...'
       
-      assembly 'com.escenic:assemblytool:...'           //<5>
+      assembly 'com.escenic:assemblytool:...'           //<6>
 }
 
 ----
 <1> Apply the core plugin
-<2> Setup a local filesystem based repository
-<3> Setup a simple layout repository
-<4> Add all your dependecies here like engine version and plugins
-<5> You also need the escenic assembly tool as dependency 
+<2> Setup the official escenic maven repository
+<3> Setup a local filesystem based repository
+<4> Setup a simple layout repository
+<5> Add all your dependecies here like engine version and plugins
+<6> You also need the escenic assembly tool as dependency 
 
 === Repository configuration
 
@@ -96,7 +98,7 @@ The escenic plugin provides shortcuts for ivy repositories with credentials and 
 
 [TIP]
 ====
-By using *escenicRepository* you can choose the official escenic content engine download site.
+By using *escenicMaven* you can choose the official escenic maven repository with your customer credentials.
 ====
 
 
@@ -235,15 +237,38 @@ The publication extension provides configuration options for the resources uploa
 
 [source, groovy]
 ----
-plugins 
 publication{
 
- publications "publication-1","publication-2"
- resourcesHost "dev","http://development-host:8080/escenic-admin/publication-resources/"
- resourcesHost "production","http://production-host:8080/escenic-admin/publication-resources/","admin","secret"
- ignoreResourcesFailure = true
+ publications "publication-1","publication-2"   //<1>
+ resourcesHost "dev","http://development-host:8080/escenic-admin/publication-resources/" //<2>
+ resourcesHost "production","http://production-host:8080/..","admin","secret" //<3>
+ resourcesHost 'stage',{   //<4>
+                    url 'http://stage-backend:8080/escenic-admin/publication-resources/'
+                    resourceBase project.file("build/stage")
+                    user "admin"
+                    password "stage"       
+		}
+ ignoreResourcesFailure = true    //<5>
 }
 ----
+<1> publication list for the ResourcesUpload Tasks
+<2> simple resources host definition
+<3> simple resources host definition with authentication
+<4> advanced resources host definition (see properties below)
+<5> allows to irgnore failures on resources uploads 
+
+
+==== Resources host advanced properties
+[options="header"]
+|=======================
+|Property      |Description                                   | Type
+|url           | The escenic upload url                       | String
+|resourceBase  | Where all resources are located              | File
+|user          | User name for a protected escenic admin      | String
+|password      | Password for a protected escenic admin       | String
+|usePublicationDirectories | Subdirectory names are publications names instead of the _publications_ property | Boolean
+|=======================
+
 
 === Resources Upload Task
 
@@ -252,6 +277,29 @@ The resources upload Tasks will be created from the configured publication exten
 ----
 resources-<publicationname>-<host key like dev or production>
 ----
+
+or if you use *_usePublicationDirectories=true_*
+
+----
+resources-<host key like dev or production>
+----
+
+==== Prepare resources before upload
+The task *_preparePublicationResources_* allows you to process resources before they will be uploaded. All ResourcesUploadTasks depends on the  *_preparePublicationResources_* task.
+
+.build.gralde 
+[source, groovy]
+----
+
+task createResources{
+ // create  or
+ // validate resources here
+}
+
+preparePublicationResources.dependsOn  createResources
+
+----
+
 
 === Merge multiple `content-type.xml` files
 
@@ -340,6 +388,12 @@ task mergeContentType(type: de.ethinking.gradle.task.escenic.MergeContentTypeTas
     outputFile = new File(buildDir, 'content-type.xml')
 }
 ----
+
+
+
+
+
+
 
 == Plugin de.ethinking.escenic.studio
 

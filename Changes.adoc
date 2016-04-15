@@ -6,6 +6,9 @@ v1.2, 2015-10-23  Changes
 :source-highlighter: coderay
 :icons: font
 
+== 0.9.1
+   * `content-type.xml` generation: allow multiple groups to be referenced from one content type
+
 == 0.9.0
    * add escenic maven shortcut
    * add processor which takes XML fragments and creates `content-type.xml` for a publication

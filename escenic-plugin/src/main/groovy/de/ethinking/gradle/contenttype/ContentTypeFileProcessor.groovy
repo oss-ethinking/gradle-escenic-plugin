@@ -70,20 +70,23 @@ class ContentTypeFileProcessor {
         }
 
         root.'content-type'.each { Node contentType ->
-            // get the specified group
-            String uiGroup = contentType.attribute(CTP.'ui-group')
-            if (uiGroup != null) {
+            // get the specified groups
+            String uiGroups = contentType.attribute(CTP.'ui-groups')
+            if (uiGroups != null) {
 
-                Node group = groupMap.get(uiGroup)
-                if (group == null) {
-                    throw new ContentTypeProcessingException("Specified UI group '$uiGroup' doesn't exist in the merged file")
+                uiGroups.split(',').each { String uiGroup ->
+                    Node group = groupMap.get(uiGroup)
+                    if (group == null) {
+                        throw new ContentTypeProcessingException("Specified UI group '$uiGroup' doesn't exist in the merged file")
+                    }
+
+                    // create new node ref-content-type with attribute name from content type and add it to the group
+                    Node refContentType = new Node(group, UI.'ref-content-type')
+                    refContentType.'@name' = contentType.'@name'
                 }
 
-                // create new node ref-content-type with attribute name from content type and add it to the group
-                Node refContentType = new Node(group, UI.'ref-content-type')
-                refContentType.'@name' = contentType.'@name'
                 // remove the original attribute
-                contentType.attributes().remove(CTP.'ui-group')
+                contentType.attributes().remove(CTP.'ui-groups')
             }
         }
     }

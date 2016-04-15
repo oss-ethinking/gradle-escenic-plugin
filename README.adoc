@@ -307,11 +307,11 @@ Instead of a single huge monolithic `content-type.xml`, you can split it into on
 To use this feature, define a task of type `MergeContentTypeTask` and set inside the required parameters. This task type will inject
 fragments to a base file and create a single big `content-type.xml`.
 
-There is a preprocessing attribute `ui-group` from `http://ethinking.de/content-type-processing` namespace, which
-you can use to insert a reference from content type into group.
+Content types can have a preprocessing attribute `ui-groups` from `http://ethinking.de/content-type-processing` namespace, which is used to insert a reference of content type into groups.
+The attribute value is a comma-separated list of group names, in which the reference will be placed.
 
 Other preprocessing attributes are `in-publications` and `not-in-publications`. You can use these on any element
-to control in which publication they will be included or excluded.
+to control in which publication they will be included or excluded. Their values are comma-separated lists of publication names.
 
 The required properties of the `MergeContentTypeTask` are:
 
@@ -350,13 +350,13 @@ and another fragment XML containing content type definition:
 <content-types xmlns="http://xmlns.escenic.com/2008/content-type"
 xmlns:ui="http://xmlns.escenic.com/2008/interface-hints"
 xmlns:ctp="http://ethinking.de/content-type-processing" version="4"> //<1>
-    <content-type name="widget_alice" ctp:ui-group="widgets_hackeshermarkt"> //<2>
+    <content-type name="widget_alice" ctp:ui-groups="widgets_hackeshermarkt"> //<2>
         <ui:label ctp:in-publications="one">Widget: Alice</ui:label> //<3>
     </content-type>
 </content-types>
 ----
 <1> `ctp` namespace
-<2> preprocessing attribute `ui-group`
+<2> preprocessing attribute `ui-groups`
 <3> preprocessing attribute `in-publications`
 
 The merged result for publication `one` is this:

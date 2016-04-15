@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <content-types xmlns="http://xmlns.escenic.com/2008/content-type" xmlns:ui="http://xmlns.escenic.com/2008/interface-hints" xmlns:ctp="http://ethinking.de/content-type-processing" version="4">
 
-    <content-type name="widget_alice" ctp:ui-group="widgets_hackeshermarkt">
+    <content-type name="widget_alice" ctp:ui-groups="widgets_hackeshermarkt,widgets_nikolaiviertel">
         <ui:label>Widget: Alice</ui:label>
         <ui:title-field>title</ui:title-field>
         <panel name="default">

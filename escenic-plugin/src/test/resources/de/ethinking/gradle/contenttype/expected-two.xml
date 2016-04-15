@@ -6,6 +6,10 @@
     <ui:label>Hackeshermarkt UI group</ui:label>
     <ui:ref-content-type name="widget_alice"/>
   </ui:group>
+  <ui:group xmlns:ui="http://xmlns.escenic.com/2008/interface-hints" name="widgets_nikolaiviertel">
+    <ui:label>Nikolaiviertel UI group</ui:label>
+    <ui:ref-content-type name="widget_alice"/>
+  </ui:group>
   <content-type name="widget_alice">
     <ui:label xmlns:ui="http://xmlns.escenic.com/2008/interface-hints">Widget: Alice</ui:label>
     <ui:title-field xmlns:ui="http://xmlns.escenic.com/2008/interface-hints">title</ui:title-field>

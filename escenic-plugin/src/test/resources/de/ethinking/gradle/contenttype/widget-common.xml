@@ -9,4 +9,8 @@
         <ui:label>Hackeshermarkt UI group</ui:label>
     </ui:group>
 
+    <ui:group name="widgets_nikolaiviertel">
+        <ui:label>Nikolaiviertel UI group</ui:label>
+    </ui:group>
+
 </content-types>

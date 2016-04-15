@@ -141,12 +141,28 @@ class ContentTypeFileProcessor {
             root = injectInto(baseFile, fragments)
             processCustomAttributes(root)
             processPublication(publicationName, root)
+
+            // capture misleading warnings caused by Xerces
+            captureStdErrToLogger()
+
             XmlUtil.serialize(root)
         } catch (RuntimeException e) {
             logger.error("Merging of content type files failed for publication: $publicationName, baseFile: $baseFile, " +
                     "fragments: ${fragments.getAsPath()}")
             throw e
         }
+    }
+
+    /**
+     * Messages written to standard error will be logged as info instead.
+     */
+    private static void captureStdErrToLogger() {
+        System.setErr(new PrintStream(System.err) {
+            @Override
+            void println(String line) {
+                logger.info(line)
+            }
+        })
     }
 
 }

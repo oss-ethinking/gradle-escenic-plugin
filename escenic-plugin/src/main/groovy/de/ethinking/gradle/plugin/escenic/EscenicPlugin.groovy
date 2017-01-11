@@ -171,6 +171,16 @@ class EscenicPlugin implements Plugin<Project> {
 
 
             File assemblyDirectory = new File(project.escenic.getLocalRepositoryLocation(),"assembly/")
+            def filter = new FilenameFilter() {
+                boolean accept(File path, String filename) {
+                    return filename.startsWith('assemblytool-')
+                }
+            }
+            def assemblytoolFiles = assemblyDirectory.listFiles(filter)
+            if (assemblytoolFiles > 0 && assemblytoolFiles[0].isDirectory) {
+                assemblyDirectory = assemblytoolFiles[0];
+            }
+
             File assemblyPropertiesFile = new File(assemblyDirectory,"assemble.properties")
             File nurseryLayerConfiguration =  project.file(project.escenic.layerConf)
             File engineSourceDirectory =  new File(project.escenic.getLocalRepositoryLocation(),"engine-source/")

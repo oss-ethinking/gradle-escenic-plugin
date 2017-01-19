@@ -43,6 +43,6 @@ class MergeContentTypeTask extends DefaultTask {
     def merge(){
         String result = processor.createFileForPublication(publication,baseFile,fragments)
         outputFile.getParentFile().mkdirs()
-        outputFile.text = result
+        outputFile.setText(result, 'UTF-8')
     }
 }

@@ -67,7 +67,7 @@ class EscenicStudioPlugin implements Plugin<Project> {
                     }
                 }
                 project.rootProject.tasks.copyStudioPlugins.inputs.files project.configurations.runtimeStudio
-                project.rootProject.tasks.copyStudioPlugins.inputs.source project.jar.outputs
+                project.rootProject.tasks.copyStudioPlugins.inputs.file(project.jar.outputs).skipWhenEmpty()
                 project.rootProject.tasks.copyStudioPlugins.inputs.property("includeProject:"+project.getPath(),project.studio.includePlugin)
                 project.rootProject.tasks.runAssembly.inputs.property("includeProject:"+project.getPath(),project.studio.includePlugin)
             }

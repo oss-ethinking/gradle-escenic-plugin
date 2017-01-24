@@ -177,7 +177,7 @@ class EscenicPlugin implements Plugin<Project> {
                 }
             }
             def assemblytoolFiles = assemblyDirectory.listFiles(filter)
-            if (assemblytoolFiles > 0 && assemblytoolFiles[0].isDirectory) {
+            if (assemblytoolFiles.length > 0 && assemblytoolFiles[0].isDirectory) {
                 assemblyDirectory = assemblytoolFiles[0];
             }
 

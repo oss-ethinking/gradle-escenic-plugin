@@ -37,12 +37,14 @@ class MergeContentTypeTask extends DefaultTask {
     @OutputFile
     File outputFile
 
+    String encoding = 'UTF-8'
+
     ContentTypeFileProcessor processor = new ContentTypeFileProcessor()
 
     @TaskAction
     def merge(){
         String result = processor.createFileForPublication(publication,baseFile,fragments)
         outputFile.getParentFile().mkdirs()
-        outputFile.setText(result, 'UTF-8')
+        outputFile.setText(result, encoding)
     }
 }

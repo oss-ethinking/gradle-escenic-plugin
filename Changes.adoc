@@ -8,7 +8,7 @@ v1.2, 2015-10-23  Changes
 
 
 == 0.9.4
-   * fix directory test in assembly tool check
+   * make assembly directory configurable with escenic extension
 
 == 0.9.3
    * fix NPE in assembly tool check

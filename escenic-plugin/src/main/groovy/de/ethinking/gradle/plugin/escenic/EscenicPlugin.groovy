@@ -169,27 +169,6 @@ class EscenicPlugin implements Plugin<Project> {
 
             def assemblyVersion = createCacheKeyFromDependencies(project.configurations.assembly.dependencies)
 
-
-            File assemblyInstallDirectory = new File(project.escenic.getLocalRepositoryLocation(),"assembly/")
-            File assemblyDirectory = assemblyInstallDirectory
-
-            // TODO
-            println 'ASSEMBLY DIR: ' + assemblyInstallDirectory
-
-            // check for nested assemblytool
-            println 'CHECKING FOR NESTED ASSEMBLY DIR: ' + assemblyInstallDirectory
-            def filter = new FilenameFilter() {
-                boolean accept(File path, String filename) {
-                    return filename.startsWith('assemblytool-')
-                }
-            }
-            def assemblytoolFiles = assemblyInstallDirectory.listFiles(filter)
-            if (assemblytoolFiles && assemblytoolFiles.length > 0 && assemblytoolFiles[0].isDirectory()) {
-                assemblyDirectory = assemblytoolFiles[0];
-                // TODO
-                println 'NESTED ASSEMBLY DIR: ' + assemblyDirectory
-            }
-
             File nurseryLayerConfiguration =  project.file(project.escenic.layerConf)
             File engineSourceDirectory =  new File(project.escenic.getLocalRepositoryLocation(),"engine-source/")
 
@@ -197,28 +176,36 @@ class EscenicPlugin implements Plugin<Project> {
             project.task("installAssembly",type:Delete){
 
                 inputs.property 'assemblyVersion',assemblyVersion
-                outputs.dir assemblyInstallDirectory
+                outputs.dir project.escenic.getAssemblyBase()
 
                 doLast{
-                    delete assemblyInstallDirectory
-                    assemblyInstallDirectory.mkdirs()
+                   delete project.escenic.getAssemblyBase()
+                   project.escenic.getAssemblyBase().mkdirs()
 
                     DependencyResolver resolver = new DependencyResolver()
-                    resolver.storeZipDistribution(project,project.configurations.assembly, assemblyInstallDirectory)
+                    resolver.storeZipDistribution(project,project.configurations.assembly, project.escenic.getAssemblyBase())
 
                     // check for nested assemblytool
-                    assemblytoolFiles = assemblyInstallDirectory.listFiles(filter)
+                    def filter = new FilenameFilter() {
+                        boolean accept(File path, String filename) {
+                            return filename.startsWith('assemblytool-')
+                        }
+                    }
+                    
+                    def assemblytoolFiles = project.escenic.getAssemblyBase().listFiles(filter)
                     if (assemblytoolFiles && assemblytoolFiles.length > 0 && assemblytoolFiles[0].isDirectory()) {
-                        println 'FOUND NESTED ASSEMBLY DIR: ' + assemblyDirectory
-                        println 'PLEASE RE-RUN BUILD'
-                        throw new org.gradle.api.GradleException('PLEASE RE-RUN BUILD BECAUSE NESTED ASSEMBLYTOOL FOLDER DETECTED')
+                         File nestedAssembly = assemblytoolFiles[0];
+                         project.copy{
+                             from nestedAssembly
+                             into nestedAssembly.getParentFile()
+                         }
                     }
                 }
             }
 
             project.task("prepareAssembly",dependsOn:'installAssembly',type:Delete){
 
-                ext.layerConfigDirectory = new File(assemblyDirectory,"conf")
+                ext.layerConfigDirectory = new File(project.escenic.getAssemblyBase(),"conf")
                 ext.skeletonConf = new File(engineSourceDirectory,"siteconfig/bootstrap-skeleton")
                 ext.projectLayerConf =  nurseryLayerConfiguration
 
@@ -246,11 +233,11 @@ class EscenicPlugin implements Plugin<Project> {
 
             project.task("initializeAssembly",dependsOn:'prepareAssembly'){
 
-                ext.srcDir = assemblyDirectory
-                ext.targetFile = new File(assemblyDirectory,"assemble.properties")
+                ext.srcDir = project.escenic.getAssemblyBase()
+                ext.targetFile = new File(project.escenic.getAssemblyBase(),"assemble.properties")
 
                 inputs.property 'assemblyVersion',assemblyVersion
-                inputs.dir new File(assemblyDirectory,"resources")
+                inputs.dir new File(project.escenic.getAssemblyBase(),"resources")
                 inputs.properties project.escenic.assemblyProperties
                 outputs.file targetFile
 
@@ -259,13 +246,13 @@ class EscenicPlugin implements Plugin<Project> {
                 doFirst{
 
                     project.ant{
-                        ant(dir: assemblyDirectory.getAbsolutePath(), antfile:"build.xml", inheritall:"false" ){
+                        ant(dir: project.escenic.getAssemblyBase(), antfile:"build.xml", inheritall:"false" ){
                             property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
                             target(name:"initialize")
                         }
                     }
 
-                    File assemblyPropertiesFile = new File(assemblyDirectory,"assemble.properties")
+                    File assemblyPropertiesFile = new File(project.escenic.getAssemblyBase(),"assemble.properties")
                     File backupProperties = new File(assemblyPropertiesFile.getAbsolutePath()+".backup")
                     if(!backupProperties.exists()){
                         assemblyPropertiesFile.renameTo(backupProperties)
@@ -278,9 +265,8 @@ class EscenicPlugin implements Plugin<Project> {
                     project.escenic.assemblyProperties.each{ String key, String value ->
                         props.setProperty(key, value)
                     }
-
-                    File defaultProps = new File(targetFile.getAbsolutePath())
-                    props.store(targetFile.newWriter(), "created by escenic gradle plugin")
+                    def propertiesFile = new File(project.escenic.getAssemblyBase(),"assemble.properties")
+                    props.store(propertiesFile.newWriter(), "created by escenic gradle plugin")
 
 
                 }
@@ -324,11 +310,11 @@ class EscenicPlugin implements Plugin<Project> {
 
 
 
-                ext.distDir = new File(assemblyDirectory,"dist")
+                ext.distDir = new File(project.escenic.getAssemblyBase(),"dist")
 
                 outputs.dir distDir
-                inputs.dir new File(assemblyDirectory,"assemble.properties")
-                inputs.files studioPluginsLibDir,new File(assemblyDirectory,"assemble.properties")
+                inputs.dir new File(project.escenic.getAssemblyBase(),"assemble.properties")
+                inputs.files studioPluginsLibDir,new File(project.escenic.getAssemblyBase(),"assemble.properties")
                 inputs.property 'assemblyVersion',assemblyVersion
 
                 doFirst{
@@ -338,7 +324,7 @@ class EscenicPlugin implements Plugin<Project> {
                     }
                     
                     project.ant{
-                        ant(dir: assemblyDirectory.getAbsolutePath(), antfile:"build.xml", inheritall:"false",useNativeBasedir:true){
+                        ant(dir: project.escenic.getAssemblyBase().getAbsolutePath(), antfile:"build.xml", inheritall:"false",useNativeBasedir:true){
                             property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
                             target(name:"clean")
                             target(name:"ear")
@@ -350,7 +336,7 @@ class EscenicPlugin implements Plugin<Project> {
             project.task("copyAssembles",dependsOn:'runAssembly',type:Delete){
 
                 ext.webappRepository =  new File(project.escenic.getLocalRepositoryLocation(),"webapps")
-                ext.assemblyDistWarFileLocations = new File(assemblyDirectory,"dist/war")
+                ext.assemblyDistWarFileLocations = new File(project.escenic.getAssemblyBase(),"dist/war")
 
                 inputs.dir assemblyDistWarFileLocations
                 outputs.dir webappRepository
@@ -361,8 +347,9 @@ class EscenicPlugin implements Plugin<Project> {
 
                     webappRepository.mkdirs()
 
+                    File webapps =  new File(project.escenic.getAssemblyBase(),"dist/war")
                     Set<String> dublicationFilter = new HashSet<String>()
-                    FileTree assembledWebapps = project.fileTree(dir: assemblyDistWarFileLocations.getAbsolutePath(), include: '**/*.war')
+                    FileTree assembledWebapps = project.fileTree(dir: webapps.getAbsolutePath(), include: '**/*.war')
 
                     project.copy{
                         from assembledWebapps.files
@@ -384,7 +371,7 @@ class EscenicPlugin implements Plugin<Project> {
                         }
                     }
 
-                    File assemblyEngineEarFile = new File(assemblyDirectory,"dist/engine.ear")
+                    File assemblyEngineEarFile = new File(project.escenic.getAssemblyBase(),"dist/engine.ear")
                     project.copy{
                         from project.zipTree(assemblyEngineEarFile)
                         into project.escenic.getLocalRepositoryLocation()

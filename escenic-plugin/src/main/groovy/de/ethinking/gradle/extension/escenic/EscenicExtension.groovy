@@ -29,6 +29,7 @@ class EscenicExtension {
     String engineRepository = '.repo'
     String layerConf="src/conf/nursery"
     Map<String,String> assemblyProperties = new HashMap<String,String>()
+    File assemblyBase = new File(".repo/assembly")
 
     List<String> engineLibs = []
     List<String> engineAPILibs = []
@@ -40,6 +41,8 @@ class EscenicExtension {
     Map<String,List<String>> pluginEngineLibs = new HashMap<String,List<String>>()
     Map<String,List<String>> pluginStudioLibs = new HashMap<String,List<String>>()
     Map<String,List<String>> applicationsLibs = new HashMap<String,List<String>>()
+    
+   
 
 
     public EscenicExtension(Project project){
@@ -119,5 +122,13 @@ class EscenicExtension {
     
     public assemblyProperty(String key,String value){
         assemblyProperties.put(key,value)
+    }
+    
+    public assemblyBase(File f){
+        assemblyBase=f
+    }
+    
+    public File getAssemblyBase(){
+        return assemblyBase
     }
 }

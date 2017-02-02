@@ -170,18 +170,26 @@ class EscenicPlugin implements Plugin<Project> {
             def assemblyVersion = createCacheKeyFromDependencies(project.configurations.assembly.dependencies)
 
 
-            File assemblyDirectory = new File(project.escenic.getLocalRepositoryLocation(),"assembly/")
+            File assemblyInstallDirectory = new File(project.escenic.getLocalRepositoryLocation(),"assembly/")
+            File assemblyDirectory = assemblyInstallDirectory
+
+            // TODO
+            println 'ASSEMBLY DIR: ' + assemblyInstallDirectory
+
+            // check for nested assemblytool
+            println 'CHECKING FOR NESTED ASSEMBLY DIR: ' + assemblyInstallDirectory
             def filter = new FilenameFilter() {
                 boolean accept(File path, String filename) {
                     return filename.startsWith('assemblytool-')
                 }
             }
-            def assemblytoolFiles = assemblyDirectory.listFiles(filter)
+            def assemblytoolFiles = assemblyInstallDirectory.listFiles(filter)
             if (assemblytoolFiles && assemblytoolFiles.length > 0 && assemblytoolFiles[0].isDirectory()) {
                 assemblyDirectory = assemblytoolFiles[0];
+                // TODO
+                println 'NESTED ASSEMBLY DIR: ' + assemblyDirectory
             }
 
-            File assemblyPropertiesFile = new File(assemblyDirectory,"assemble.properties")
             File nurseryLayerConfiguration =  project.file(project.escenic.layerConf)
             File engineSourceDirectory =  new File(project.escenic.getLocalRepositoryLocation(),"engine-source/")
 
@@ -189,13 +197,22 @@ class EscenicPlugin implements Plugin<Project> {
             project.task("installAssembly",type:Delete){
 
                 inputs.property 'assemblyVersion',assemblyVersion
-                outputs.dir assemblyDirectory
+                outputs.dir assemblyInstallDirectory
 
                 doLast{
-                    delete assemblyDirectory
-                    assemblyDirectory.mkdirs()
+                    delete assemblyInstallDirectory
+                    assemblyInstallDirectory.mkdirs()
+
                     DependencyResolver resolver = new DependencyResolver()
-                    resolver.storeZipDistribution(project,project.configurations.assembly, assemblyDirectory)
+                    resolver.storeZipDistribution(project,project.configurations.assembly, assemblyInstallDirectory)
+
+                    // check for nested assemblytool
+                    assemblytoolFiles = assemblyInstallDirectory.listFiles(filter)
+                    if (assemblytoolFiles && assemblytoolFiles.length > 0 && assemblytoolFiles[0].isDirectory()) {
+                        println 'FOUND NESTED ASSEMBLY DIR: ' + assemblyDirectory
+                        println 'PLEASE RE-RUN BUILD'
+                        throw new org.gradle.api.GradleException('PLEASE RE-RUN BUILD BECAUSE NESTED ASSEMBLYTOOL FOLDER DETECTED')
+                    }
                 }
             }
 
@@ -230,7 +247,7 @@ class EscenicPlugin implements Plugin<Project> {
             project.task("initializeAssembly",dependsOn:'prepareAssembly'){
 
                 ext.srcDir = assemblyDirectory
-                ext.targetFile = assemblyPropertiesFile
+                ext.targetFile = new File(assemblyDirectory,"assemble.properties")
 
                 inputs.property 'assemblyVersion',assemblyVersion
                 inputs.dir new File(assemblyDirectory,"resources")
@@ -248,6 +265,7 @@ class EscenicPlugin implements Plugin<Project> {
                         }
                     }
 
+                    File assemblyPropertiesFile = new File(assemblyDirectory,"assemble.properties")
                     File backupProperties = new File(assemblyPropertiesFile.getAbsolutePath()+".backup")
                     if(!backupProperties.exists()){
                         assemblyPropertiesFile.renameTo(backupProperties)
@@ -309,8 +327,8 @@ class EscenicPlugin implements Plugin<Project> {
                 ext.distDir = new File(assemblyDirectory,"dist")
 
                 outputs.dir distDir
-                inputs.dir   assemblyPropertiesFile
-                inputs.files studioPluginsLibDir,assemblyPropertiesFile
+                inputs.dir new File(assemblyDirectory,"assemble.properties")
+                inputs.files studioPluginsLibDir,new File(assemblyDirectory,"assemble.properties")
                 inputs.property 'assemblyVersion',assemblyVersion
 
                 doFirst{

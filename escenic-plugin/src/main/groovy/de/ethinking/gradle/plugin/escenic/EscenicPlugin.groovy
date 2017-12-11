@@ -171,7 +171,7 @@ class EscenicPlugin implements Plugin<Project> {
 
             File nurseryLayerConfiguration =  project.file(project.escenic.layerConf)
             File engineSourceDirectory =  new File(project.escenic.getLocalRepositoryLocation(),"engine-source/")
-
+  		    File layerConfigDirectory = new File(project.escenic.getAssemblyBase(),"conf")
 
             project.task("installAssembly",type:Delete){
 
@@ -202,10 +202,16 @@ class EscenicPlugin implements Plugin<Project> {
                     }
                 }
             }
+            
+            project.task("cleanAssembly",dependsOn:'installAssembly',type:Delete){
+               ext.layerConfigDirectory = new File(project.escenic.getAssemblyBase(),"conf")
+               delete layerConfigDirectory
+            }
+            
 
-            project.task("prepareAssembly",dependsOn:'installAssembly',type:Delete){
+            project.task("prepareAssembly",dependsOn:'cleanAssembly'){
 
-                ext.layerConfigDirectory = new File(project.escenic.getAssemblyBase(),"conf")
+               
                 ext.skeletonConf = new File(engineSourceDirectory,"siteconfig/bootstrap-skeleton")
                 ext.projectLayerConf =  nurseryLayerConfiguration
 
@@ -213,11 +219,7 @@ class EscenicPlugin implements Plugin<Project> {
                 inputs.dir projectLayerConf
                 outputs.dir layerConfigDirectory
 
-                delete layerConfigDirectory
-
                 doLast{
-
-
                     //copy layer from escenic distribution
                     project.copy{
                         from skeletonConf

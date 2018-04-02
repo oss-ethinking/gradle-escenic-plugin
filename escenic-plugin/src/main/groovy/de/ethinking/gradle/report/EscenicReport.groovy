@@ -1,7 +1,6 @@
 package de.ethinking.gradle.report
 
-import java.util.List;
-import java.util.Map;
+
 
 class EscenicReport {
 

@@ -15,7 +15,6 @@
 package de.ethinking.gradle.extension.escenic
 
 import org.gradle.api.Project
-import org.gradle.api.artifacts.PublishArtifact
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 

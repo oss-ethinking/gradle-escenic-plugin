@@ -4,6 +4,8 @@ import de.ethinking.gradle.extension.escenic.ResourceHost
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.tooling.BuildException
+import org.gradle.api.logging.Logging
+import org.gradle.api.logging.Logger
 
 class UploadResourcesTask extends DefaultTask{
 
@@ -12,6 +14,8 @@ class UploadResourcesTask extends DefaultTask{
     def ResourceHost resourceHost
     def File resourcesBase
     def boolean ignoreFailure=true
+    
+    static Logger LOG = Logging.getLogger(UploadResourcesTask.class)
 
     @TaskAction
     def uploadResources(){
@@ -36,8 +40,9 @@ class UploadResourcesTask extends DefaultTask{
                 URL url = new URL(resourceHost.getUrl()+publication+"/escenic/"+resource)
                 String response= uploadResource(resourceFile, url)
                 if(response.length()>0){
-                    println "Invalid resource:"+resourceFile.getAbsolutePath()
-                    println "Response:"+response
+                    LOG.error("Invalid resource:"+resourceFile.getAbsolutePath()+" response:"+response+" from url:"+url)
+                }else{
+                    LOG.info("Uploaded resource:"+resourceFile.getAbsolutePath()+" to url:"+url)                
                 }
             }
         }
@@ -80,7 +85,7 @@ class UploadResourcesTask extends DefaultTask{
         try{
             response = connection.inputStream.withReader { Reader reader -> reader.text }
             return response
-        }catch(Exception e){
+        }catch(IOException e){
             response = connection.errorStream.withReader { Reader reader -> reader.text }
             File errorFile = new File(project.getBuildDir(),"reports/escenic-resource/"+resource.getName()+".html")
             errorFile.getParentFile().mkdirs()

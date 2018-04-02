@@ -100,7 +100,7 @@ class EscenicEngineModel{
 				}
 			}
 		}else{
-			println "There is no engine configured for your project."
+			LOG.info("There is no engine configured for your project.")
 		}
 	}
 

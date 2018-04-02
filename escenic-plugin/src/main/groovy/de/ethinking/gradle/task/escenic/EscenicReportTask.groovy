@@ -4,13 +4,14 @@ import de.ethinking.gradle.extension.escenic.EscenicExtension
 import de.ethinking.gradle.report.EscenicReport
 import de.ethinking.gradle.extension.escenic.ExtensionUtils
 
-import java.io.File;
+
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
-
+import org.gradle.api.logging.Logging
+import org.gradle.api.logging.Logger
 import groovy.json.*
 
 
@@ -18,6 +19,7 @@ class EscenicReportTask extends DefaultTask {
 
     def EscenicExtension escenicExtension
     def File reportBase
+    static Logger LOG = Logging.getLogger(EscenicReportTask.class)
 
 
     @TaskAction
@@ -75,8 +77,8 @@ class EscenicReportTask extends DefaultTask {
                     out.close();
                 }
             }
-        } catch(Exception e){
-            e.printStackTrace()
+        } catch(IOException e){
+           LOG.error("Error on processing resource:"+resource,e)
         } finally {
             // Close the stream
             if (zipStream != null) {
@@ -122,7 +124,6 @@ class EscenicReportTask extends DefaultTask {
                 }
             }
         }
-        File engine = new File(directory,"lib")
 
         searchExtension("engine", directory,"lib", report)
         searchExtension("studio", directory,"studio/lib", report)

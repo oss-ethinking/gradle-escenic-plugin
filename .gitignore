@@ -14,3 +14,4 @@ bin
 ${catalina.base}
 /nbproject/private/
 
+/.metadata/

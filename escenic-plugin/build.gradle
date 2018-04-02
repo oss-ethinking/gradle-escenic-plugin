@@ -14,6 +14,7 @@ plugins {
  
 apply plugin: "com.gradle.plugin-publish"
 apply plugin: 'groovy'
+apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 
@@ -27,10 +28,16 @@ jar {
     }
 }
 
+test {
+    testLogging {
+        showStandardStreams = true
+    }
+}
 
 
 dependencies {
 	testCompile 'junit:junit:4.+'
+	testCompile 'org.xmlunit:xmlunit-core:2.5.1'
 }
 
 

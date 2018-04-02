@@ -19,6 +19,7 @@ import de.ethinking.gradle.extension.escenic.ResourceHost
 import de.ethinking.gradle.task.escenic.UploadResourcesTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 
 class EscenicPresentationPlugin implements Plugin<Project> {
 
@@ -45,7 +46,7 @@ class EscenicPresentationPlugin implements Plugin<Project> {
 
             project.task("preparePublicationResources"){}
             List<String> publications = []
-            
+
             if(project.publication.publications){
                 project.publication.publications.each{ String publicationName ->
                     publications.add(publicationName)
@@ -53,25 +54,30 @@ class EscenicPresentationPlugin implements Plugin<Project> {
             }else{
                 publications.add(project.getName())
             }
-            
+
             project.publication.resourcesHosts.each { String hostName, ResourceHost host ->
+                Task resourcesHostTask=project.task("resourcesHost-"+hostName,group:"resources upload", description:"Upload all resources for host:"+hostName)
+
                 if(host.isUsePublicationDirectories()){
                     String taskName = "resources-"+hostName
-                    project.task(taskName,type:UploadResourcesTask,dependsOn:"preparePublicationResources",group:"resources upload",description:"Uploads resources for host "+hostName){
+                    Task resourcesUploadTask = project.task(taskName,type:UploadResourcesTask,dependsOn:"preparePublicationResources",group:"resources upload",description:"Uploads resources for host "+hostName){
                         resourcesBase = project.publication.resourcesBase
                         ignoreFailure= project.publication.ignoreResourcesFailure
                         resourceHost = host
                     }
+                    resourcesHostTask.dependsOn resourcesUploadTask
                 }else{
                     publications.each{ String resourcePublication ->
                         String taskName = "resources-"+resourcePublication+"-"+hostName
-                        project.task(taskName,type:UploadResourcesTask,dependsOn:"preparePublicationResources",group:"resources upload",description:"Uploads resources for publication "+resourcePublication+" on host "+hostName){
+                        Task resourcesUploadTask =  project.task(taskName,type:UploadResourcesTask,dependsOn:"preparePublicationResources",group:"resources upload",description:"Uploads resources for publication "+resourcePublication+" on host "+hostName){
                             publication = resourcePublication
                             resourcesBase = project.publication.resourcesBase
                             ignoreFailure= project.publication.ignoreResourcesFailure
                             resourceHost = host
                         }
+                        resourcesHostTask.dependsOn resourcesUploadTask
                     }
+                    
                 }
             }
         }

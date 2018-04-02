@@ -18,9 +18,6 @@ package de.ethinking.gradle.plugin.escenic
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.file.FileCollection
-import de.ethinking.gradle.extension.escenic.EscenicExtension
-import de.ethinking.gradle.extension.escenic.ExtensionUtils
 
 class EscenicEnginePlugin implements Plugin<Project> {
 

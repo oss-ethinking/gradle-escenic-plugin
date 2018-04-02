@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><content-types xmlns="http://xmlns.escenic.com/2008/content-type" version="4">
+<?xml version='1.0' encoding='UTF-8'?><content-types xmlns="http://xmlns.escenic.com/2008/content-type" version="4">
   <ui:group xmlns:ui="http://xmlns.escenic.com/2008/interface-hints" name="widgets_alexanderplatz">
     <ui:label>Alexanderplatz UI group</ui:label>
   </ui:group>

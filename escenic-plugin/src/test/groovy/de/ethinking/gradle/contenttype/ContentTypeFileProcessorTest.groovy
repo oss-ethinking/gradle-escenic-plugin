@@ -19,8 +19,12 @@ import org.gradle.api.file.FileCollection
 import org.junit.Before
 import org.junit.Test
 import org.gradle.testfixtures.ProjectBuilder
+import org.xmlunit.builder.DiffBuilder
+import org.xmlunit.builder.Input
+import org.xmlunit.diff.Diff
 
-import static org.junit.Assert.assertEquals
+
+import static org.junit.Assert.assertFalse
 
 /**
  * Test of the {@link ContentTypeFileProcessor} class.
@@ -56,11 +60,21 @@ class ContentTypeFileProcessorTest {
      * @param expectedResourceName resource containing the expected result
      */
     private void publication(String publicationName, String expectedResourceName) {
+    
         String expected = new Scanner(ContentTypeFileProcessorTest.getResourceAsStream(expectedResourceName), 'UTF-8').useDelimiter('\\A').next()
         Project project = ProjectBuilder.builder().build()
         FileCollection injectingPaths = project.files(load('widget-common.xml'), load('widgetA.xml'))
         String result = instance.createFileForPublication(publicationName, load('base.xml'), injectingPaths)
-        assertEquals expected.replaceAll("\\n","").replaceAll("\\r",""), result.replaceAll("\\n","").replaceAll("\\r","")
+        
+         Diff d = DiffBuilder.compare(Input.fromString(expected))
+        .withTest(Input.fromString(result))
+        .ignoreWhitespace()
+        .ignoreComments()
+        .normalizeWhitespace()
+        .build()
+        
+        
+        assertFalse d.hasDifferences()
     }
 
     /**

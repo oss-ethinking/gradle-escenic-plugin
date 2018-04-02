@@ -16,7 +16,7 @@ package de.ethinking.gradle.contenttype
 
 import groovy.xml.Namespace
 import groovy.xml.QName
-import groovy.xml.XmlUtil
+import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.file.FileCollection
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -145,8 +145,15 @@ class ContentTypeFileProcessor {
             // capture misleading warnings caused by Xerces
             captureStdErrToLogger()
 
-            XmlUtil.serialize(root)
-        } catch (RuntimeException e) {
+           def out = new StringWriter()
+           def builder = new StreamingMarkupBuilder()
+           builder.encoding = 'UTF-8'
+           out << builder.bind { mkp.xmlDeclaration() }
+           new XmlNodePrinter(new PrintWriter(out)).print(root)
+           
+           return out.toString()
+
+        } catch (IOException e) {
             logger.error("Merging of content type files failed for publication: $publicationName, baseFile: $baseFile, " +
                     "fragments: ${fragments.getAsPath()}")
             throw e

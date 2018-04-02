@@ -22,6 +22,7 @@ import de.ethinking.gradle.repository.EscenicEngineModel
 
 import org.gradle.api.Project
 import org.gradle.api.logging.Logging
+import org.gradle.tooling.BuildException
 
 class DependencyClosures {
 
@@ -37,8 +38,8 @@ class DependencyClosures {
                 count=files.size()
                 fileCollection =project.files(files)
             }else{
-                println "No escenic engine found -> configure your dependencies"
                 fileCollection = project.files()
+                throw new BuildException("No escenic engine found! You must configure your dependencies")
             }
             if(LOG.isInfoEnabled()){
                 LOG.info("Adding "+count+" jars from engine as dependencies for project:"+project.getName())
@@ -54,8 +55,9 @@ class DependencyClosures {
                 count=files.size()
                 fileCollection =project.files(files)
             }else{
-                println "No escenic engine found -> configure your dependencies"
                 fileCollection = project.files()
+                throw new BuildException("No escenic engine found! You must configure your dependencies")
+                
             }
             if(LOG.isInfoEnabled()){
                 LOG.info("Adding "+count+" jars from engine api as dependencies for project:"+project.getName())

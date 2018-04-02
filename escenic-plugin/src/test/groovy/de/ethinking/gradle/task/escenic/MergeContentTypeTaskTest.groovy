@@ -18,8 +18,12 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
+import org.xmlunit.builder.DiffBuilder
+import org.xmlunit.builder.Input
+import org.xmlunit.diff.Diff
 
-import static org.junit.Assert.assertEquals
+
+import static org.junit.Assert.assertFalse
 
 class MergeContentTypeTaskTest {
 
@@ -40,6 +44,18 @@ class MergeContentTypeTaskTest {
         task.execute()
 
         // result should have the same contents as the emptyFile
-        assertEquals emptyFile.text.replaceAll("\\n","").replaceAll("\\r",""), resultFile.text.replaceAll("\\n","").replaceAll("\\r","")
+        //assertEquals emptyFile.text.replaceAll("\\n","").replaceAll("\\r",""), resultFile.text.replaceAll("\\n","").replaceAll("\\r","")
+        
+        Diff d = DiffBuilder.compare(Input.fromString(emptyFile.text))
+        .withTest(Input.fromString(resultFile.text))
+        .ignoreWhitespace()
+        .ignoreComments()
+        .normalizeWhitespace()
+        .build()
+        
+        
+        assertFalse d.hasDifferences()
+        
+        
     }
 }

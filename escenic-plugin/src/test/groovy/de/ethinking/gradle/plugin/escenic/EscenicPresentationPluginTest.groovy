@@ -79,5 +79,12 @@ class EscenicPresentationPluginTest {
         assertNotNull(project.tasks.'resources-test')
         assertTrue(project.tasks.'resources-test'.taskDependencies.getDependencies().contains(prepareTask))
         
+        
+        Task stageCollectionTask =  project.tasks.findByName('resourcesHost-stage')
+        assertNotNull(stageCollectionTask)        
+        assertTrue(stageCollectionTask.taskDependencies.getDependencies().contains(task))
+        
+        
+        
     }
 }

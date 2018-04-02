@@ -18,10 +18,12 @@ package de.ethinking.gradle.task.escenic
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.logging.Logging
+import org.gradle.api.logging.Logger
 
 class CreateFeatureArtifactTask extends DefaultTask {
 
-
+   static Logger LOG = Logging.getLogger(CreateFeatureArtifactTask.class)
 
 	@TaskAction
 	def createFeatureArtifactLayout() {
@@ -55,7 +57,7 @@ class CreateFeatureArtifactTask extends DefaultTask {
 			createFolderLayout(subprojectDirectory, project)
 			File buildFile = project.file(new File(subprojectDirectory,"build.gradle"))
 			if(!buildFile.exists()){
-				println "Create build.gradle for:"+subProject
+				LOG.info("Create build.gradle for:"+subProject)
 				if(engineProjects.contains(subProject)){
 					buildFile << "apply plugin: 'de.ethinking.escenic.engine'\n"
 				}

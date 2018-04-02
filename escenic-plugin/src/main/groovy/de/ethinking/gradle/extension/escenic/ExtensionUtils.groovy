@@ -32,11 +32,11 @@ class ExtensionUtils {
         int length=path.length();
         for(int i=path.length()-1;i>=0;i--){
             char c = path.charAt(i)
-            if(!Character.isLetter(c)){
-                length--;
+            if(Character.isLetter(c)){
+              //first letter -> we have to stop
+                i=-1
             }else{
-                //first letter -> we have to stop
-                i=-1;
+               length--
             }
         }
         return path.substring(0,length);

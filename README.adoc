@@ -270,7 +270,7 @@ publication{
 |=======================
 
 
-=== Resources Upload Task
+=== Resources Upload Tasks
 
 The resources upload Tasks will be created from the configured publication extensions. For every host and publication a task will be created. Basic auth of escenic admin is supported.
 
@@ -283,6 +283,14 @@ or if you use *_usePublicationDirectories=true_*
 ----
 resources-<host key like dev or production>
 ----
+
+You can also use a collection task for every host to apply all necessary publication resources for a single host.
+
+----
+resourcesHost-<host key like dev or production>
+----
+
+
 
 ==== Prepare resources before upload
 The task *_preparePublicationResources_* allows you to process resources before they will be uploaded. All ResourcesUploadTasks depends on the  *_preparePublicationResources_* task.

@@ -457,16 +457,15 @@ subprojects {        //<1>
 }
 
 dependencies{
-      engine 'com.escenic:engine:5.7.20.157888'
-      plugin 'com.escenic:widget-framework-core:3.2.0.157669'
+      engine 'com.escenic:engine:6.7.xxxx'
+      plugin 'com.escenic:widget-framework-core:4.5.xxxx'
       plugin 'com.escenic:analysis-engine:2.7.0.148640'
-      plugin 'com.escenic:xml-editor:2.5.0.149301'
-      plugin 'com.escenic:menu-editor:2.3.0.149305'
-      assembly 'com.escenic:assemblytool:2.0.6'
+      .....
+      assembly 'com.escenic:assemblytool:2.0.7'
 }
 
 task wrapper(type: Wrapper) {       //<2>
-    gradleVersion = '2.4'
+    gradleVersion = '4.6'
 }
 
 ----

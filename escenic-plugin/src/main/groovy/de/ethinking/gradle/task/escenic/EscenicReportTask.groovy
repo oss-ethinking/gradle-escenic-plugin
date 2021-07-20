@@ -3,7 +3,8 @@ package de.ethinking.gradle.task.escenic
 import de.ethinking.gradle.extension.escenic.EscenicExtension
 import de.ethinking.gradle.report.EscenicReport
 import de.ethinking.gradle.extension.escenic.ExtensionUtils
-
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -17,7 +18,9 @@ import groovy.json.*
 
 class EscenicReportTask extends DefaultTask {
 
+    @Input
     def EscenicExtension escenicExtension
+    @InputFile
     def File reportBase
     static Logger LOG = Logging.getLogger(EscenicReportTask.class)
 

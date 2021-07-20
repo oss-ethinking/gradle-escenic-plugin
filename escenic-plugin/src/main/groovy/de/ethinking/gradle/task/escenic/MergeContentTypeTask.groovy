@@ -19,7 +19,8 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction
 
@@ -37,8 +38,10 @@ class MergeContentTypeTask extends DefaultTask {
     @OutputFile
     File outputFile
 
+    @Internal
     String encoding = 'UTF-8'
 
+    @Internal
     ContentTypeFileProcessor processor = new ContentTypeFileProcessor()
 
     @TaskAction

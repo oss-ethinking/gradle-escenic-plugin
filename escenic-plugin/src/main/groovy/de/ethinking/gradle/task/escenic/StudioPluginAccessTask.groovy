@@ -27,8 +27,9 @@ class StudioPluginAccessTask extends DefaultTask{
     
     @OutputDirectory
 	def File studioPluginsLibDir
-    
-	def File pluginsBasePath
+
+    @InputDirectory
+    def File pluginsBasePath
     
     @TaskAction
     def copyStudioPlugins(){

@@ -2,6 +2,9 @@ package de.ethinking.gradle.task.escenic
 
 import de.ethinking.gradle.extension.escenic.ResourceHost
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Console;
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.tooling.BuildException
 import org.gradle.api.logging.Logging
@@ -9,10 +12,13 @@ import org.gradle.api.logging.Logger
 
 class UploadResourcesTask extends DefaultTask{
 
-
+    @Input
     def String publication
+    @Input
     def ResourceHost resourceHost
+    @InputFile
     def File resourcesBase
+    @Console
     def boolean ignoreFailure=true
     
     static Logger LOG = Logging.getLogger(UploadResourcesTask.class)

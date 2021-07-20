@@ -64,8 +64,8 @@ subprojects {
 	repositories { mavenCentral() }
 
 	dependencies {
-		compile gradleApi()
-		compile localGroovy()
+		implementation gradleApi()
+		implementation localGroovy()
 	}
 }
 

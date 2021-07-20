@@ -36,8 +36,8 @@ test {
 
 
 dependencies {
-	testCompile 'junit:junit:4.+'
-	testCompile 'org.xmlunit:xmlunit-core:2.5.1'
+    testImplementation 'junit:junit:4.+'
+    testImplementation 'org.xmlunit:xmlunit-core:2.5.1'
 }
 
 

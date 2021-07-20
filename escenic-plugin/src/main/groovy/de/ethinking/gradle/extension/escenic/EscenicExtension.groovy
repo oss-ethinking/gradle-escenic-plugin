@@ -27,7 +27,8 @@ class EscenicExtension {
     Project project
     String engineRepository = '.repo'
     String layerConf="src/conf/nursery"
-    Map<String,String> assemblyProperties = new HashMap<String,String>()
+    Map<String,String> assemblyProperties = new HashMap()
+    Map<String,String> antParameters = new HashMap()
     File assemblyBase = new File(".repo/assembly")
 
     List<String> engineLibs = []
@@ -122,6 +123,11 @@ class EscenicExtension {
     public assemblyProperty(String key,String value){
         assemblyProperties.put(key,value)
     }
+    
+    public antParameter(String key,String value){
+        antParameters.put(key,value)
+    }
+    
     
     public assemblyBase(File f){
         assemblyBase=f

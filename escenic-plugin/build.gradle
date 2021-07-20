@@ -41,10 +41,13 @@ dependencies {
 }
 
 
+
 uploadArchives {
     repositories {
         mavenDeployer {
             repository(url: uri(System.properties['user.home']+'/.localmavenrepo/'))
+            pom.groupId='de.ethinking.escenic'
+            pom.artifactId = 'de.ethinking.escenic.gradle.plugin'
         }
     }
 }

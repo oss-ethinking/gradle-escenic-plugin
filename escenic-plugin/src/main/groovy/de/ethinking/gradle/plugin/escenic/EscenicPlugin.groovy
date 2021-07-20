@@ -330,6 +330,9 @@ class EscenicPlugin implements Plugin<Project> {
                     project.ant{
                         ant(dir: project.escenic.getAssemblyBase().getAbsolutePath(), antfile:"build.xml", inheritall:"false",useNativeBasedir:true){
                             property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
+                            project.escenic.antParameters.each{ String key, String value ->
+                                property(name:key,value:value)
+                            }
                             target(name:"clean")
                             target(name:"ear")
                         }

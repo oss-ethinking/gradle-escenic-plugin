@@ -16,7 +16,7 @@ apply plugin: "com.gradle.plugin-publish"
 apply plugin: 'groovy'
 apply plugin: 'java'
 apply plugin: 'eclipse'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 evaluationDependsOn ':escenic-report'
 
@@ -40,17 +40,18 @@ dependencies {
     testImplementation 'org.xmlunit:xmlunit-core:2.5.1'
 }
 
-
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: uri(System.properties['user.home']+'/.localmavenrepo/'))
-            pom.groupId='de.ethinking.escenic'
-            pom.artifactId = 'de.ethinking.escenic.gradle.plugin'
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'de.ethinking.escenic.gradle.plugin'
+            groupId = 'de.ethinking.escenic'
+            from components.java
+            //goes to directory $USER_HOME/.m2/repository
         }
     }
 }
+
+
 
 pluginBundle {
     website = 'https://github.com/oss-ethinking/gradle-escenic-plugin'

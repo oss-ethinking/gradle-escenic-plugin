@@ -16,6 +16,8 @@ package de.ethinking.gradle.plugin.escenic
 
 
 
+import java.io.File
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -25,6 +27,7 @@ import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.file.FileTree
 import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.Copy
 
 
 
@@ -33,6 +36,8 @@ import de.ethinking.gradle.repository.DependencyResolver
 import de.ethinking.gradle.repository.EscenicEngineModel
 import de.ethinking.gradle.task.escenic.StudioPluginAccessTask
 import de.ethinking.gradle.task.escenic.EscenicReportTask
+import de.ethinking.gradle.task.escenic.StudioPluginCollectorTask
+
 
 import org.gradle.api.logging.Logging
 import org.gradle.tooling.BuildException
@@ -157,7 +162,7 @@ class EscenicPlugin implements Plugin<Project> {
     }
 
 
-    def addEngineAssemblyTasks(Project project){
+    protected void addEngineAssemblyTasks(Project project){
 
         if(project.configurations.assembly){
 
@@ -256,6 +261,7 @@ class EscenicPlugin implements Plugin<Project> {
 
                     File assemblyPropertiesFile = new File(project.escenic.getAssemblyBase(),"assemble.properties")
                     File backupProperties = new File(assemblyPropertiesFile.getAbsolutePath()+".backup")
+                    
                     if(!backupProperties.exists()){
                         assemblyPropertiesFile.renameTo(backupProperties)
                     }
@@ -280,34 +286,18 @@ class EscenicPlugin implements Plugin<Project> {
 
 
             
-            project.task("cleanStudioPlugins",dependsOn:"initializeAssembly",type:Delete){
+           def cleanStudioPluginsTask = project.task("cleanStudioPlugins",dependsOn:["initializeAssembly","collectStudioPlugins"],type:Delete){
                 ext.studioPluginsSourceDir = studioPluginsSourceDir
                 delete studioPluginsSourceDir
+                
+ 
             }
-            
-            
-            
-            Task copyStudioPluginsTask =project.task("copyStudioPlugins",dependsOn:"cleanStudioPlugins"){
-                ext.studioPluginsSourceDir = studioPluginsSourceDir
-                ext.pluginBasePath = new File(engineSourceDirectory,"plugins")
-                outputs.dir studioPluginsSourceDir
-            }
+                
+            def copyStudioPluginsTask = project.tasks.create("copyStudioPlugins",StudioPluginCollectorTask,studioPluginsSourceDir)
+            copyStudioPluginsTask.dependsOn  cleanStudioPluginsTask 
+      
 
-            copyStudioPluginsTask.doLast{
-                studioPluginsSourceDir.mkdirs()
-                project.allprojects { Project subProject ->
-                    if(subProject.plugins.hasPlugin('de.ethinking.escenic.studio')&&subProject.studio.includePlugin){
-                        LOG.info("copy studio plugin project:"+subProject.getName())
-                        project.copy{
-                            from subProject.jar
-                            from subProject.configurations.runtimeStudio
-                            into studioPluginsSourceDir
-                        }
-                    }
-                }
-            }
-
-            project.tasks["prepareStudioPlugins"].dependsOn "copyStudioPlugins"
+            project.tasks["prepareStudioPlugins"].dependsOn copyStudioPluginsTask
             project.tasks["prepareStudioPlugins"].studioPluginsSourceDir=studioPluginsSourceDir
             project.tasks["prepareStudioPlugins"].studioPluginsLibDir=studioPluginsLibDir
             project.tasks["prepareStudioPlugins"].pluginsBasePath=new File(engineSourceDirectory,"plugins")
@@ -405,6 +395,11 @@ class EscenicPlugin implements Plugin<Project> {
     }
 
     def addPublicEngineAssemblyTasks(Project project) {
+        
+        project.task("collectStudioPlugins"){
+
+        }
+        
 
         project.task("prepareStudioPlugins",type:StudioPluginAccessTask){
 

@@ -66,9 +66,10 @@ class EscenicStudioPlugin implements Plugin<Project> {
                         }
                     }
                 }
-                project.rootProject.tasks.copyStudioPlugins.inputs.files project.configurations.runtimeStudio
-                project.rootProject.tasks.copyStudioPlugins.inputs.file(project.jar.outputs).skipWhenEmpty()
-                project.rootProject.tasks.copyStudioPlugins.inputs.property("includeProject:"+project.getPath(),project.studio.includePlugin)
+                def copyStudioTask =  project.rootProject.tasks.copyStudioPlugins
+                copyStudioTask.inputs.files(project.configurations.runtimeStudio).skipWhenEmpty()
+                copyStudioTask.inputs.files(project.layout.files(project.jar)).skipWhenEmpty()
+                copyStudioTask.inputs.property("includeProject:"+project.getPath(),project.studio.includePlugin)
                 project.rootProject.tasks.runAssembly.inputs.property("includeProject:"+project.getPath(),project.studio.includePlugin)
             }
         }

@@ -14,6 +14,8 @@
  */
 package de.ethinking.gradle.extension.escenic
 
+import java.io.File;
+
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -29,7 +31,7 @@ class EscenicExtension {
     String layerConf="src/conf/nursery"
     Map<String,String> assemblyProperties = new HashMap()
     Map<String,String> antParameters = new HashMap()
-    File assemblyBase = new File(".repo/assembly")
+    String assemblyBase = ".repo/assembly"
 
     List<String> engineLibs = []
     List<String> engineAPILibs = []
@@ -130,10 +132,10 @@ class EscenicExtension {
     
     
     public assemblyBase(File f){
-        assemblyBase=f
+        assemblyBase=f.getAbsolutePath()
     }
     
     public File getAssemblyBase(){
-        return assemblyBase
+        return project.file(assemblyBase)
     }
 }

@@ -23,16 +23,16 @@ import org.gradle.api.tasks.OutputDirectory
 class StudioPluginAccessTask extends DefaultTask{
     
     @InputDirectory
-    def File studioPluginsSourceDir
+    File studioPluginsSourceDir
     
     @OutputDirectory
-	def File studioPluginsLibDir
+	File studioPluginsLibDir
 
     @InputDirectory
-    def File pluginsBasePath
+    File pluginsBasePath
     
     @TaskAction
-    def copyStudioPlugins(){
+    def copyStudioPluginTask(){
         
         project.delete(studioPluginsLibDir)
 

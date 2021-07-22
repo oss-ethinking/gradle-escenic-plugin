@@ -16,7 +16,6 @@ package de.ethinking.gradle.plugin.escenic
 
 
 
-import java.io.File
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -27,7 +26,6 @@ import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.file.FileTree
 import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.Delete
-import org.gradle.api.tasks.Copy
 
 
 
@@ -291,7 +289,7 @@ class EscenicPlugin implements Plugin<Project> {
 
 
             
-           def cleanStudioPluginsTask = project.task("cleanStudioPlugins",dependsOn:["initializeAssembly","collectStudioPlugins"]){
+            project.task("cleanStudioPlugins",dependsOn:["initializeAssembly","collectStudioPlugins"]){
                 
            }
  
@@ -326,7 +324,7 @@ class EscenicPlugin implements Plugin<Project> {
             project.tasks["prepareStudioPlugins"].outputs.dir(studioPluginsLibDir)
             project.tasks["prepareStudioPlugins"].inputs.dir(studioPluginsSourceDir)
 
-            project.task("runAssembly",dependsOn:'prepareStudioPlugins'){
+            def assemblyTask = project.task("runAssembly",dependsOn:'prepareStudioPlugins'){
 
                 ext.distDir = new File(project.escenic.getAssemblyBase(),"dist")
 
@@ -337,21 +335,23 @@ class EscenicPlugin implements Plugin<Project> {
                 inputs.files(studioPluginsLibDir)
                 inputs.property 'assemblyVersion',assemblyVersion
 
-                doFirst{
-                    ClassLoader antClassLoader = org.apache.tools.ant.Project.class.classLoader
-                    project.configurations.antRuntime.each { File f ->
-                        antClassLoader.addURL(f.toURI().toURL())
-                    }
+            }
+            
+            assemblyTask.doFirst{
+                
+                ClassLoader antClassLoader = org.apache.tools.ant.Project.class.classLoader
+                project.configurations.antRuntime.each { File f ->
+                    antClassLoader.addURL(f.toURI().toURL())
+                }
 
-                    project.ant{
-                        ant(dir: project.escenic.getAssemblyBase().getAbsolutePath(), antfile:"build.xml", inheritall:"false",useNativeBasedir:true){
-                            property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
-                            project.escenic.antParameters.each{ String key, String value ->
-                                property(name:key,value:value)
-                            }
-                            target(name:"clean")
-                            target(name:"ear")
+                project.ant{
+                    ant(dir: project.escenic.getAssemblyBase().getAbsolutePath(), antfile:"build.xml", inheritall:"false",useNativeBasedir:true){
+                        property(name:"engine.root",value:engineSourceDirectory.getAbsolutePath())
+                        project.escenic.antParameters.each{ String key, String value ->
+                            property(name:key,value:value)
                         }
+                        target(name:"clean")
+                        target(name:"ear")
                     }
                 }
             }

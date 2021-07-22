@@ -40,13 +40,13 @@ The escenic content engine provides different interfaces for integration and dev
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.9.5"
+  id "de.ethinking.escenic" version "0.9.6"
   // or
-  id "de.ethinking.escenic.engine" version "0.9.5"
+  id "de.ethinking.escenic.engine" version "0.9.6"
   // or
-  id "de.ethinking.escenic.presentation" version "0.9.5"
+  id "de.ethinking.escenic.presentation" version "0.9.6"
   // or
-  id "de.ethinking.escenic.studio" version "0.9.5"
+  id "de.ethinking.escenic.studio" version "0.9.6"
 }
 ----
 
@@ -64,7 +64,7 @@ You have to use the de.ethinking.escenic plugin as parent project which will pro
 [source, groovy]
 ----
 plugins {
-  id "de.ethinking.escenic" version "0.9.5"  //<1>
+  id "de.ethinking.escenic" version "0.9.6"  //<1>
 }
 
 repositories{
@@ -74,7 +74,7 @@ repositories{
 }
 
 dependencies{
-      engine 'com.escenic:engine:6.17....'   //<5>  
+      engine 'com.escenic:engine:6.18....'   //<5>
             
       plugin 'com.escenic:<plugin>:..'
       plugin 'com.escenic:<another plugin>:...'
@@ -457,15 +457,15 @@ subprojects {        //<1>
 }
 
 dependencies{
-      engine 'com.escenic:engine:6.17.xxxx'
-      plugin 'com.escenic:widget-framework-core:4.5.xxxx'
-      plugin 'com.escenic:analysis-engine:2.7.0.148640'
+      engine 'com.escenic:engine:6.18.xxxx'
+      plugin 'com.escenic.widget-framework:widget-framework:4.7.0-2@zip'
+      plugin 'com.escenic.plugins.analysis-engine:analysis-engine:3.0.1-1@zip'
       .....
-      assembly 'com.escenic:assemblytool:2.0.7'
+      assembly 'com.escenic.assemblytool:assemblytool:2.1.1-3@zip'
 }
 
-task wrapper(type: Wrapper) {       //<2>
-    gradleVersion = '4.10.3'
+wrapper{                    //<2>
+    gradleVersion = '6.8'
 }
 
 ----

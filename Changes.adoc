@@ -7,8 +7,11 @@ v1.2, 2015-10-23  Changes
 :icons: font
 
 == 0.9.6
-* add support for gradle 6.x
-* cleanup code
+   * add support for gradle 6.x
+   * improved build performance by reducing amount of content engine rebuilds
+   * cleanup code
+   
+
 
 == 0.9.5
    * add support for gradle 4.x

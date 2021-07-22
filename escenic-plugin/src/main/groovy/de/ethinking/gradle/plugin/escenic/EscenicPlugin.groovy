@@ -34,9 +34,7 @@ import org.gradle.api.tasks.Copy
 import de.ethinking.gradle.extension.escenic.EscenicExtension
 import de.ethinking.gradle.repository.DependencyResolver
 import de.ethinking.gradle.repository.EscenicEngineModel
-import de.ethinking.gradle.task.escenic.StudioPluginAccessTask
 import de.ethinking.gradle.task.escenic.EscenicReportTask
-import de.ethinking.gradle.task.escenic.StudioPluginCollectorTask
 
 
 import org.gradle.api.logging.Logging
@@ -178,8 +176,10 @@ class EscenicPlugin implements Plugin<Project> {
                 inputs.property 'assemblyVersion',assemblyVersion
                 outputs.dir project.escenic.getAssemblyBase()
 
-                doLast{
+                doFirst{
                     delete project.escenic.getAssemblyBase()
+                }
+                doLast{
                     project.escenic.getAssemblyBase().mkdirs()
 
                     DependencyResolver resolver = new DependencyResolver()
@@ -204,24 +204,29 @@ class EscenicPlugin implements Plugin<Project> {
                 }
             }
 
-            project.task("cleanAssembly",dependsOn:'installAssembly',type:Delete){
-                ext.layerConfigDirectory = new File(project.escenic.getAssemblyBase(),"conf")
-                delete layerConfigDirectory
+            project.task("cleanAssembly",dependsOn:'installAssembly'){
+
             }
 
 
-            project.task("prepareAssembly",dependsOn:'cleanAssembly'){
+            project.task("prepareAssembly",dependsOn:'cleanAssembly',type:Delete){
 
+                ext.layerConfigDirectory = new File(project.escenic.getAssemblyBase(),"conf")
+                     
 
                 ext.skeletonConf = new File(engineSourceDirectory,"siteconfig/bootstrap-skeleton")
                 ext.projectLayerConf =  nurseryLayerConfiguration
 
                 inputs.dir skeletonConf
                 if(projectLayerConf.exists()){
-                    inputs.dir projectLayerConf
+                    inputs.files(projectLayerConf)
                 }
                 outputs.dir layerConfigDirectory
 
+                doFirst{
+                    delete layerConfigDirectory
+                }
+                
                 doLast{
                     //copy layer from escenic distribution
                     project.copy{
@@ -286,29 +291,50 @@ class EscenicPlugin implements Plugin<Project> {
 
 
             
-           def cleanStudioPluginsTask = project.task("cleanStudioPlugins",dependsOn:["initializeAssembly","collectStudioPlugins"],type:Delete){
-                ext.studioPluginsSourceDir = studioPluginsSourceDir
-                delete studioPluginsSourceDir
+           def cleanStudioPluginsTask = project.task("cleanStudioPlugins",dependsOn:["initializeAssembly","collectStudioPlugins"]){
                 
+           }
  
+            Task copyStudioPluginsTask =project.task("copyStudioPlugins",dependsOn:"cleanStudioPlugins",type:Delete){
+                ext.studioPluginsSourceDir = studioPluginsSourceDir
+                ext.pluginBasePath = new File(engineSourceDirectory,"plugins")
+                outputs.dir studioPluginsSourceDir
+                doFirst{
+                    delete studioPluginsSourceDir
+                }
             }
-                
-            def copyStudioPluginsTask = project.tasks.create("copyStudioPlugins",StudioPluginCollectorTask,studioPluginsSourceDir)
-            copyStudioPluginsTask.dependsOn  cleanStudioPluginsTask 
-      
 
+            copyStudioPluginsTask.doLast{
+                studioPluginsSourceDir.mkdirs()
+                project.allprojects { Project subProject ->
+                    if(subProject.plugins.hasPlugin('de.ethinking.escenic.studio')&&subProject.studio.includePlugin){
+                        LOG.info("copy studio plugin project:"+subProject.getName())
+                        project.copy{
+                            from subProject.jar
+                            from subProject.configurations.runtimeStudio
+                            into studioPluginsSourceDir
+                        }
+                    }
+                }
+            }
+            
+    
             project.tasks["prepareStudioPlugins"].dependsOn copyStudioPluginsTask
-            project.tasks["prepareStudioPlugins"].studioPluginsSourceDir=studioPluginsSourceDir
-            project.tasks["prepareStudioPlugins"].studioPluginsLibDir=studioPluginsLibDir
-            project.tasks["prepareStudioPlugins"].pluginsBasePath=new File(engineSourceDirectory,"plugins")
+            project.tasks["prepareStudioPlugins"].ext.studioPluginsSourceDir=studioPluginsSourceDir
+            project.tasks["prepareStudioPlugins"].ext.studioPluginsLibDir=studioPluginsLibDir
+            
+            project.tasks["prepareStudioPlugins"].outputs.dir(studioPluginsLibDir)
+            project.tasks["prepareStudioPlugins"].inputs.dir(studioPluginsSourceDir)
 
             project.task("runAssembly",dependsOn:'prepareStudioPlugins'){
 
                 ext.distDir = new File(project.escenic.getAssemblyBase(),"dist")
 
-                outputs.dir distDir
-                inputs.file new File(project.escenic.getAssemblyBase(),"assemble.properties")
-                inputs.files studioPluginsLibDir,new File(project.escenic.getAssemblyBase(),"assemble.properties")
+                outputs.dir(distDir)
+                inputs.dir(new File(engineSourceDirectory,"plugins"))
+                inputs.file(new File(project.escenic.getAssemblyBase(),"assemble.properties"))
+                inputs.files(nurseryLayerConfiguration)
+                inputs.files(studioPluginsLibDir)
                 inputs.property 'assemblyVersion',assemblyVersion
 
                 doFirst{
@@ -400,9 +426,17 @@ class EscenicPlugin implements Plugin<Project> {
 
         }
         
-
-        project.task("prepareStudioPlugins",type:StudioPluginAccessTask){
-
+        project.task("prepareStudioPlugins",type:Delete){
+   
+            doFirst{
+                delete studioPluginsLibDir
+            }
+            doLast{
+                project.copy{
+                    from studioPluginsSourceDir
+                    into studioPluginsLibDir
+                }
+            }
         }
 
         project.task("escenicReport",type:EscenicReportTask){

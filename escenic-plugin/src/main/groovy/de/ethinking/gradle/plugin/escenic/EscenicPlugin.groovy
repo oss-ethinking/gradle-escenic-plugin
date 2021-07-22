@@ -147,6 +147,7 @@ class EscenicPlugin implements Plugin<Project> {
                     username = user
                     password = passwd
                 }
+                metadataSources { artifact()  }
             }
             )
         }

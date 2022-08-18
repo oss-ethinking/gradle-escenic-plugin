@@ -142,7 +142,7 @@ class EscenicPlugin implements Plugin<Project> {
 
         project.repositories.metaClass.escenicMaven = {String user,String passwd  ->
             project.repositories.add(project.repositories.maven {
-                url "http://maven.escenic.com"
+                url "https://maven.escenic.com"
                 credentials {
                     username = user
                     password = passwd
